@@ -1,35 +1,35 @@
 # Orbit Prompt Skill
 
-Analisa sessões com AI e sinaliza padrões de ineficiência. Você vê o diagnóstico e decide o que fazer.
+Analyzes AI sessions and surfaces inefficiency patterns as explicit, visible diagnostics. You see the output and decide what to do.
 
 ---
 
-## O que é
+## What it is
 
-Uma skill para Claude Code com dois modos de uso, ambos explícitos:
+A skill for Claude Code with two explicit modes:
 
-1. **`/orbit-prompt`** — Você pede análise de um prompt antes de enviá-lo. A skill identifica lacunas e sugere uma versão melhorada. Você decide se usa ou não.
-2. **Diagnóstico de sessão** — Você aciona manualmente para analisar o histórico da conversa atual e identificar padrões de ineficiência.
+1. **`/orbit-prompt`** — You request an analysis of a prompt before sending it. The skill identifies gaps and suggests a structured version. You decide whether to use it.
+2. **Session diagnostics** — You trigger manually to analyze the current conversation and identify inefficiency patterns.
 
-A skill **não modifica nada.** Ela lê, analisa e exibe. Você age.
+The skill **does not modify anything.** It reads, analyzes, and displays. You act.
 
 ---
 
-## Comando Principal: `/orbit-prompt`
+## Main Command: `/orbit-prompt`
 
-Use quando quiser revisar um prompt antes de enviá-lo.
+Use when you want to review a prompt before sending it.
 
-**Sintaxe:**
+**Syntax:**
 
 ```
-/orbit-prompt "seu prompt aqui"
+/orbit-prompt "your prompt here"
 ```
 
-**O que acontece:**
+**What happens:**
 
-A skill lê o prompt, identifica o que está faltando (escopo, critério de aceite, limites) e exibe uma versão sugerida. Você lê e decide se usa, adapta ou descarta.
+The skill reads the prompt, identifies what is missing (scope, acceptance criteria, boundaries) and displays a suggested version. You read it and decide whether to use it, adapt it, or discard it.
 
-**Exemplo:**
+**Example:**
 
 ```
 /orbit-prompt "Refactor auth module"
@@ -61,13 +61,13 @@ CHANGES MADE:
 - Added verifiable success criterion
 ```
 
-Você copia o que quiser. Ou ignora. A skill não envia nada.
+You copy what you want. Or ignore it. The skill sends nothing.
 
 ---
 
-## Diagnóstico de Sessão
+## Session Diagnostics
 
-Use quando quiser analisar o histórico da conversa atual.
+Use when you want to analyze the current conversation history.
 
 **Triggers:**
 
@@ -79,7 +79,7 @@ is this optimal?
 Before answering, apply orbit-engine
 ```
 
-Em sessões com padrões evidentes, a skill pode sinalizar no início de uma resposta — sempre visível, nunca silencioso.
+In sessions with clear patterns, the skill may surface a diagnosis at the start of a response — always visible, never silent.
 
 **Output:**
 
@@ -100,29 +100,29 @@ DO NOT DO NOW:
 Risk: medium
 ```
 
-Você lê. Você decide.
+You read it. You decide.
 
 ---
 
-## Exemplo Completo
+## Full Example
 
-**Situação:** Sessão com múltiplas correções após prompt vago.
+**Situation:** Session with multiple corrections after a vague prompt.
 
 ```
-Turno 1: "Refactor auth module"
-         → Claude reescreveu 3 arquivos
+Turn 1: "Refactor auth module"
+        → Claude rewrote 3 files
 
-Turno 2: "Não, só o middleware"
-         → Claude editou auth.ts
+Turn 2: "No, just the middleware"
+        → Claude edited auth.ts
 
-Turno 3: "Não toca nas rotas"
-         → Claude editou routes.ts
+Turn 3: "Don't touch routes"
+        → Claude edited routes.ts
 
-Turno 4: "Mantém a assinatura"
-         → Claude editou novamente
+Turn 4: "Keep the original signature"
+        → Claude edited again
 ```
 
-**Diagnóstico:**
+**Diagnosis:**
 
 ```
 [Orbit Engine]
@@ -143,57 +143,57 @@ Risk: medium
 
 ---
 
-## Os 8 Padrões Detectados
+## The 8 Detected Patterns
 
-| Padrão | O que é |
-|--------|---------|
-| Unsolicited long responses | Output excede o que foi pedido |
-| Correction chains | 3+ correções seguidas ao mesmo output |
-| Repeated edits | Mesmo arquivo editado 3+ vezes |
-| Exploratory searching | 5+ arquivos lidos sem objetivo definido |
-| Weak prompt | Tarefa complexa sem escopo, critério ou limite |
-| Large inline content | Bloco >100 linhas colado em vez de referenciado |
-| Validation theater | Artefatos criados mas não executados |
-| Context accumulation | Sessão longa com contexto irrelevante acumulado |
+| Pattern | Description |
+|---------|-------------|
+| Unsolicited long responses | Output far exceeds what was requested |
+| Correction chains | 3+ short follow-ups each correcting previous output |
+| Repeated edits | Same file or function edited 3+ times |
+| Exploratory searching | 5+ files read in one turn without a stated goal |
+| Weak prompt | Complex task with no scope, boundary, or success criteria |
+| Large inline content | Code block >100 lines pasted instead of referenced |
+| Validation theater | Artifacts created but never executed or tested |
+| Context accumulation | Long resumed session with irrelevant carried context |
 
-Cada padrão descreve o que foi observado. Nada é estimado ou inferido.
+Each pattern describes what was observed. Nothing is estimated or inferred.
 
 ---
 
-## Instalar
+## Install
 
 **Claude Code:**
 
-1. Baixe [`orbit-prompt.skill`](https://github.com/IanVDev/orbit-prompt/releases)
+1. Download [`orbit-prompt.skill`](https://github.com/IanVDev/orbit-prompt/releases)
 2. Claude Code → Settings → Skills → Install
 
-**Como prompt de sistema (qualquer LLM):**
+**As a system prompt (any LLM):**
 
 ```bash
 unzip orbit-prompt.skill
-# Use o conteúdo de SKILL.md como system prompt
+# Use the contents of SKILL.md as your system prompt
 ```
 
 ---
 
-## Dentro do `.skill`
+## Inside the `.skill`
 
 ```
 orbit-prompt.skill
-├── SKILL.md        — Definição, padrões e regras de ativação
-├── QUICK-START.md  — Primeiros passos (3 min)
-├── ONBOARDING.md   — Guia completo
-└── EXAMPLES.md     — 6 cenários reais com diagnósticos
+├── SKILL.md        — Full definition, patterns, and activation rules
+├── QUICK-START.md  — Getting started (3 min)
+├── ONBOARDING.md   — Complete usage guide
+└── EXAMPLES.md     — 6 real-world scenarios with diagnostics
 ```
 
 ---
 
-## Versão
+## Version
 
 ```
-Versão:  1.1.1
-Status:  Pronto para produção
+Version: 0.1.0
+Status:  Production-ready
 License: Copyright © 2026 Aurya. All rights reserved.
 ```
 
-Desenvolvido pela Aurya como parte do Orbit Engine.
+Developed by Aurya as part of Orbit Engine.
