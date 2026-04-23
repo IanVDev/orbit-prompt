@@ -6,10 +6,10 @@ Analyzes AI sessions and surfaces inefficiency patterns as explicit, visible dia
 
 ## What it is
 
-A skill for Claude Code with two explicit modes:
+A skill for Claude Code with two surfaces:
 
-1. **`/orbit-prompt`** — You request an analysis of a prompt before sending it. The skill identifies gaps and suggests a structured version. You decide whether to use it.
-2. **Session diagnostics** — You trigger manually to analyze the current conversation and identify inefficiency patterns.
+1. **`/orbit-prompt`** (primary) — You request an analysis of a prompt before sending it. The skill identifies gaps and suggests a structured version. You decide whether to use it.
+2. **Session diagnostics** (automatic, silent by default) — The skill observes the session and only surfaces a diagnosis when it detects one of the 8 inefficiency patterns. When the session is healthy, it stays silent.
 
 The skill **does not modify anything.** It reads, analyzes, and displays. You act.
 
@@ -67,9 +67,9 @@ You copy what you want. Or ignore it. The skill sends nothing.
 
 ## Session Diagnostics
 
-Use when you want to analyze the current conversation history.
+The skill watches the session and surfaces a diagnosis only when it detects one of the 8 patterns. If the session is healthy, it stays silent. You do not trigger anything — automatic detection is the default.
 
-**Triggers:**
+**Advanced triggers (optional):** if you want to force a diagnosis on demand instead of waiting for automatic detection, these natural-language phrases work:
 
 ```
 analyze cost
@@ -79,7 +79,7 @@ is this optimal?
 Before answering, apply orbit-engine
 ```
 
-In sessions with clear patterns, the skill may surface a diagnosis at the start of a response — always visible, never silent.
+These are optional. The recommended flow is `/orbit-prompt` for prompt improvement and automatic detection for diagnosis.
 
 **Output:**
 
@@ -188,10 +188,31 @@ orbit-prompt.skill
 
 ---
 
+## Versioning
+
+This repository uses two version layers:
+
+- **Repository version** (`v0.x.y`) — distribution and packaging of this repo
+- **Skill version** (`1.x.y` in `SKILL.md` frontmatter) — internal behavior and contract
+
+They evolve independently. The repo version tracks distribution changes (README, packaging, metadata). The skill version tracks behavioral contract changes (triggers, output formats, patterns).
+
+**Current:**
+
+```
+Repo:  v0.2.0
+Skill: v1.1.2
+```
+
+Internal validation and the source of truth for the skill contract live in `orbit-engine` (gate `G16_skill_version`). This repo mirrors released artifacts only.
+
+---
+
 ## Version
 
 ```
-Version: 0.1.0
+Version: 0.2.0
+Skill:   v1.1.2
 Status:  Production-ready
 License: Copyright © 2026 Aurya. All rights reserved.
 ```
