@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.2.1] — 2026-04-23
+
+### Added
+
+- **Exposed `SKILL.md` under `skills/orbit-prompt/`** for marketplace indexing (e.g. SkillsMP). The directory mirrors the contents of `orbit-prompt.skill` so that tools which index the open `SKILL.md` format directly can discover and read the skill without unpacking the archive.
+- `scripts/check_skill_public_layout.sh` — fail-closed local check asserting that the public folder and the packaged artifact stay in sync (both present, no macOS metadata, identical frontmatter version).
+
+### Unchanged
+
+- `orbit-prompt.skill` artifact — byte-for-byte identical to v0.2.0. The skill contract was not touched.
+- Embedded skill version remains `1.1.2`.
+
+---
+
 ## [0.2.0] — 2026-04-23
 
 ### Changed

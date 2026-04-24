@@ -176,6 +176,24 @@ unzip orbit-prompt.skill
 
 ---
 
+## SkillsMP / `SKILL.md` source
+
+For marketplaces and tools that index the open `SKILL.md` format directly, the authoritative skill definition is exposed at:
+
+```
+skills/orbit-prompt/SKILL.md
+```
+
+Both surfaces ship identical content — `orbit-prompt.skill` (the packaged, installable artifact) and `skills/orbit-prompt/` (the extracted, indexable folder). A local check (`scripts/check_skill_public_layout.sh`) asserts they are in sync.
+
+| Use case | Source |
+|---|---|
+| Install in Claude Code | `orbit-prompt.skill` (root) |
+| Marketplace indexing | `skills/orbit-prompt/SKILL.md` |
+| Use as system prompt (any LLM) | either — same content |
+
+---
+
 ## Inside the `.skill`
 
 ```
@@ -200,7 +218,7 @@ They evolve independently. The repo version tracks distribution changes (README,
 **Current:**
 
 ```
-Repo:  v0.2.0
+Repo:  v0.2.1
 Skill: v1.1.2
 ```
 
@@ -211,7 +229,7 @@ Internal validation and the source of truth for the skill contract live in `orbi
 ## Version
 
 ```
-Version: 0.2.0
+Version: 0.2.1
 Skill:   v1.1.2
 Status:  Production-ready
 License: Copyright © 2026 Aurya. All rights reserved.
