@@ -1,6 +1,35 @@
 # Orbit Prompt Skill
 
-Analyzes AI sessions and surfaces inefficiency patterns as explicit, visible diagnostics. You see the output and decide what to do.
+**Most AI correction turns are caused by vague prompts — not by the model.**
+
+`orbit-prompt` catches weak prompts before they cost you turns. Two surfaces: a `/orbit-prompt` command you call explicitly, and automatic session diagnostics that stay silent when the session is healthy.
+
+---
+
+**Before:**
+```
+/orbit-prompt "Refactor auth module"
+```
+
+**After:**
+```
+[Orbit Engine — Prompt Analysis]
+
+ORIGINAL: "Refactor auth module"
+
+GAPS:
+- No file target (which file?)
+- No scope boundary (password? OAuth? both?)
+- No acceptance criteria (what does done look like?)
+- Risk: high speculation — will require corrections
+
+SUGGESTED:
+"Extract password validation from src/auth/auth.ts into
+src/validators/password.ts. Keep existing function signatures.
+Do not touch OAuth flow or routes. Done = all existing tests pass."
+```
+
+You copy what you want. Or ignore it. The skill sends nothing.
 
 ---
 
