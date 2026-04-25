@@ -1,6 +1,6 @@
 {
   "name": "orbit-prompt",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Universal prompt skill for deterministic AI behavior analysis. Provides /orbit-prompt for explicit prompt review and silent session diagnostics for 8 inefficiency patterns.",
   "author": {
     "name": "Ian VDev",
