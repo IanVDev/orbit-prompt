@@ -205,6 +205,24 @@ unzip orbit-prompt.skill
 
 ---
 
+## Claude Code: Enable Autocomplete
+
+Installing the skill makes the behavior available, but `/orbit-prompt` may not appear in the `/` autocomplete. To make it discoverable, add the slash command bridge to your project:
+
+```bash
+mkdir -p .claude/commands
+curl -fsSLo .claude/commands/orbit-prompt.md \
+  https://raw.githubusercontent.com/IanVDev/orbit-prompt/main/.claude/commands/orbit-prompt.md
+```
+
+Then restart the Claude Code session. The command will appear as `/orbit-prompt` in autocomplete.
+
+The bridge file (`.claude/commands/orbit-prompt.md`) is a thin router — it does not contain the skill definition. The skill contract lives in `orbit-prompt.skill`.
+
+> If you are working from a clone of this repo, the bridge is already at `.claude/commands/orbit-prompt.md`. Copy it to your project's `.claude/commands/` directory.
+
+---
+
 ## SkillsMP / `SKILL.md` source
 
 For marketplaces and tools that index the open `SKILL.md` format directly, the authoritative skill definition is exposed at:
@@ -247,7 +265,7 @@ They evolve independently. The repo version tracks distribution changes (README,
 **Current:**
 
 ```
-Repo:  v0.2.1
+Repo:  v0.2.2
 Skill: v1.1.2
 ```
 
@@ -258,7 +276,7 @@ Internal validation and the source of truth for the skill contract live in `orbi
 ## Version
 
 ```
-Version: 0.2.1
+Version: 0.2.2
 Skill:   v1.1.2
 Status:  Production-ready
 License: Copyright © 2026 Aurya. All rights reserved.

@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.2.2] — 2026-04-25
+
+### Added
+
+- **`.claude/commands/orbit-prompt.md`** — slash command bridge for Claude Code autocomplete. Installing the skill alone may not surface `/orbit-prompt` in the `/` autocomplete. This bridge file, placed at `.claude/commands/orbit-prompt.md` in the user's project, registers the command explicitly. It is a thin router — skill definition stays in `orbit-prompt.skill`.
+- **README: "Claude Code: Enable Autocomplete" section** — documents the bridge setup with a one-line `curl` install and clarifies when it is needed.
+
+### Unchanged
+
+- `orbit-prompt.skill` artifact — byte-for-byte identical to v0.2.1. No behavioral change to the skill.
+- Embedded skill version remains `1.1.2`.
+
+---
+
 ## [0.2.1] — 2026-04-23
 
 ### Added
