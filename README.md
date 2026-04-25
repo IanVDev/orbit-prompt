@@ -194,10 +194,14 @@ Each pattern describes what was observed. Nothing is estimated or inferred.
 
 ## Install
 
-**Claude Code:**
+**Recommended — Claude Code plugin:**
 
-1. Download [`orbit-prompt.skill`](https://github.com/IanVDev/orbit-prompt/releases)
-2. Claude Code → Settings → Skills → Install
+```
+/plugin marketplace add IanVDev/orbit-prompt
+/plugin install orbit-prompt@orbit-prompt
+```
+
+This single path ships the skill, the `/orbit-prompt` slash command, and the autocomplete entry. Restart the Claude Code session and `/orbit-prompt` appears in `/`. No manual file copying.
 
 **As a system prompt (any LLM):**
 
@@ -208,9 +212,12 @@ unzip orbit-prompt.skill
 
 ---
 
-## Claude Code: Enable Autocomplete
+## Manual fallback
 
-Installing the skill makes the behavior available, but `/orbit-prompt` may not appear in the `/` autocomplete. To make it discoverable, add the slash command bridge to your project:
+Use this only if the plugin path is unavailable (offline mirror, restricted environment, custom packaging). The plugin install above is the supported route.
+
+1. Download [`orbit-prompt.skill`](https://github.com/IanVDev/orbit-prompt/releases) and install via Claude Code → Settings → Skills.
+2. Add the slash command bridge to your project so `/orbit-prompt` appears in autocomplete:
 
 ```bash
 mkdir -p .claude/commands
@@ -218,11 +225,7 @@ curl -fsSLo .claude/commands/orbit-prompt.md \
   https://raw.githubusercontent.com/IanVDev/orbit-prompt/main/.claude/commands/orbit-prompt.md
 ```
 
-Then restart the Claude Code session. The command will appear as `/orbit-prompt` in autocomplete.
-
-The bridge file (`.claude/commands/orbit-prompt.md`) is a thin router — it does not contain the skill definition. The skill contract lives in `orbit-prompt.skill`.
-
-> If you are working from a clone of this repo, the bridge is already at `.claude/commands/orbit-prompt.md`. Copy it to your project's `.claude/commands/` directory.
+Then restart the Claude Code session. The bridge file is a thin router — the skill contract lives in `orbit-prompt.skill`.
 
 ---
 
@@ -268,7 +271,7 @@ They evolve independently. The repo version tracks distribution changes (README,
 **Current:**
 
 ```
-Repo:  v0.2.3
+Repo:  v0.3.0
 Skill: v1.2.0
 ```
 
@@ -279,7 +282,7 @@ Internal validation and the source of truth for the skill contract live in `orbi
 ## Version
 
 ```
-Version: 0.2.3
+Version: 0.3.0
 Skill:   v1.2.0
 Status:  Production-ready
 License: Copyright © 2026 Aurya. All rights reserved.

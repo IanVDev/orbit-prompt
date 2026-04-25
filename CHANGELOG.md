@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.3.0] — 2026-04-25
+
+### Changed
+
+- **Claude Code distribution is now plugin-first.** The recommended install path is `/plugin marketplace add IanVDev/orbit-prompt` followed by `/plugin install orbit-prompt@orbit-prompt`. This single path ships the skill, the `/orbit-prompt` command and the autocomplete entry — no manual `mkdir`/`curl` step required.
+- **`/orbit-prompt` is shipped with the plugin install path.** The command bridge now lives at `commands/orbit-prompt.md` (plugin root) and is registered automatically when the plugin is installed.
+- **Manual `mkdir`/`curl` bridge install is fallback only.** README moved the legacy install instructions under a new "Manual fallback" section, kept for offline / restricted environments.
+
+### Added
+
+- **`.claude-plugin/plugin.json`** — Claude Code plugin manifest declaring `orbit-prompt` v1.2.0.
+- **`.claude-plugin/marketplace.json`** — single-plugin marketplace manifest so the repo can be added directly with `/plugin marketplace add`.
+- **`commands/orbit-prompt.md`** — thin slash command bridge at the plugin root; identical contract to the legacy `.claude/commands/orbit-prompt.md` (English-by-default, structured output format).
+- **`scripts/check_claude_plugin_layout.sh`** — fail-closed gate asserting plugin manifest, skill, command bridge, and README plugin-first wording. Guards against silent regression of the install contract.
+
+### Unchanged
+
+- **Skill v1.2.0** — behavioral contract is byte-for-byte identical. No change to triggers, output format, or the 8 detected patterns.
+- **`orbit-prompt.skill`** — packaged ZIP artifact unchanged.
+- **`.claude/commands/orbit-prompt.md`** — kept in place to support the manual fallback documented in the README.
+
+---
+
 ## [0.2.3] — 2026-04-25
 
 ### Changed

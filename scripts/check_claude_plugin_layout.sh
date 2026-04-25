@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# scripts/check_claude_plugin_layout.sh — valida layout de Claude Code Plugin.
+#
+# Contrato (fail-closed, qualquer violação → exit 1):
+#   1. .claude-plugin/plugin.json existe
+#   2. skills/orbit-prompt/SKILL.md existe
+#   3. commands/orbit-prompt.md existe
+#   4. commands/orbit-prompt.md referencia "orbit-prompt"
+#   5. README.md não apresenta o curl manual como caminho recomendado
+#      (qualquer ocorrência de `curl` no README deve aparecer somente
+#       depois da seção "Manual fallback")
+#   6. README.md menciona o caminho recomendado via /plugin install
+#
+# Sem dependências externas (bash, grep, awk).
+# Uso: bash scripts/check_claude_plugin_layout.sh
+
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${REPO_ROOT}"
+
+PLUGIN_JSON=".claude-plugin/plugin.json"
+SKILL_MD="skills/orbit-prompt/SKILL.md"
+CMD_MD="commands/orbit-prompt.md"
+README="README.md"
+
+fail() { echo "[FAIL] $*" >&2; exit 1; }
+pass() { echo "[PASS] $*"; }
+
+echo ""
+echo "── claude code plugin layout ──"
+echo ""
+
+# ── 1. plugin.json ──────────────────────────────────────────────────────
+[[ -f "${PLUGIN_JSON}" ]] \
+  || fail "${PLUGIN_JSON} missing"
+pass "${PLUGIN_JSON} present"
+
+# ── 2. skill ────────────────────────────────────────────────────────────
+[[ -f "${SKILL_MD}" ]] \
+  || fail "${SKILL_MD} missing"
+pass "${SKILL_MD} present"
+
+# ── 3. command bridge ───────────────────────────────────────────────────
+[[ -f "${CMD_MD}" ]] \
+  || fail "${CMD_MD} missing"
+pass "${CMD_MD} present"
+
+# ── 4. command references the skill name ────────────────────────────────
+grep -q "orbit-prompt" "${CMD_MD}" \
+  || fail "${CMD_MD} does not reference 'orbit-prompt'"
+pass "${CMD_MD} references orbit-prompt"
+
+# ── 5. README does not present curl as the recommended path ─────────────
+[[ -f "${README}" ]] \
+  || fail "${README} missing"
+
+manual_line=$(grep -n -i "Manual fallback" "${README}" | head -1 | cut -d: -f1 || true)
+curl_line=$(grep -n "curl" "${README}" | head -1 | cut -d: -f1 || true)
+
+if [[ -n "${curl_line}" ]]; then
+  if [[ -z "${manual_line}" ]]; then
+    fail "README contains 'curl' but no 'Manual fallback' section"
+  fi
+  if (( curl_line < manual_line )); then
+    fail "README shows 'curl' (line ${curl_line}) before 'Manual fallback' section (line ${manual_line})"
+  fi
+fi
+pass "README curl placement OK (curl confined to Manual fallback)"
+
+# ── 6. README announces /plugin install as the recommended path ─────────
+grep -q "/plugin install" "${README}" \
+  || fail "README does not announce '/plugin install' as the recommended install path"
+pass "README announces /plugin install"
+
+echo ""
+echo "🟢 claude code plugin layout OK"

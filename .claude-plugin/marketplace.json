@@ -1,0 +1,24 @@
+{
+  "name": "orbit-prompt",
+  "owner": {
+    "name": "Ian VDev",
+    "email": "ianvilhena99@gmail.com",
+    "url": "https://github.com/IanVDev"
+  },
+  "plugins": [
+    {
+      "name": "orbit-prompt",
+      "source": ".",
+      "description": "Universal prompt skill for deterministic AI behavior analysis. Provides /orbit-prompt for explicit prompt review and silent session diagnostics for 8 inefficiency patterns.",
+      "version": "1.2.0",
+      "author": {
+        "name": "Ian VDev"
+      },
+      "homepage": "https://github.com/IanVDev/orbit-prompt",
+      "repository": "https://github.com/IanVDev/orbit-prompt",
+      "license": "Copyright 2026 Aurya. All rights reserved.",
+      "keywords": ["orbit", "prompt", "diagnostics", "claude-code", "skill"],
+      "category": "productivity"
+    }
+  ]
+}
