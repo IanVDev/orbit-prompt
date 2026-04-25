@@ -2,13 +2,15 @@
   "name": "orbit-prompt",
   "owner": {
     "name": "Ian VDev",
-    "email": "ianvilhena99@gmail.com",
-    "url": "https://github.com/IanVDev"
+    "email": "ianvilhena99@gmail.com"
   },
   "plugins": [
     {
       "name": "orbit-prompt",
-      "source": ".",
+      "source": {
+        "source": "github",
+        "repo": "IanVDev/orbit-prompt"
+      },
       "description": "Universal prompt skill for deterministic AI behavior analysis. Provides /orbit-prompt for explicit prompt review and silent session diagnostics for 8 inefficiency patterns.",
       "version": "1.2.0",
       "author": {

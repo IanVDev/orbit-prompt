@@ -39,10 +39,22 @@ echo ""
   || fail "${PLUGIN_JSON} missing"
 pass "${PLUGIN_JSON} present"
 
-# ── 2. marketplace.json ─────────────────────────────────────────────────
+# ── 2. marketplace.json — present and valid source schema ───────────────
 [[ -f "${MARKETPLACE_JSON}" ]] \
   || fail "${MARKETPLACE_JSON} missing"
 pass "${MARKETPLACE_JSON} present"
+
+# source must be a github-type object, not the literal "." that caused
+# "plugins.0.source: Invalid input" at /plugin marketplace add time.
+python3 -c "
+import json, sys
+d = json.load(open('${MARKETPLACE_JSON}'))
+src = d['plugins'][0]['source']
+if not isinstance(src, dict) or src.get('source') != 'github' or 'repo' not in src:
+    sys.exit(1)
+" 2>/dev/null \
+  || fail "${MARKETPLACE_JSON} plugins[0].source must be {\"source\":\"github\",\"repo\":\"owner/repo\"}"
+pass "${MARKETPLACE_JSON} source schema valid (github object)"
 
 # ── 3. skill ────────────────────────────────────────────────────────────
 [[ -f "${SKILL_MD}" ]] \
