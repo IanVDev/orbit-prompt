@@ -1,6 +1,6 @@
 # Orbit Prompt Skill
 
-**Most AI correction turns are caused by vague prompts — not by the model.**
+**Most AI correction turns are caused by vague prompts, not by the model.**
 
 `orbit-prompt` catches weak prompts before they cost you turns. Two surfaces: a `/orbit-prompt` command you call explicitly, and automatic session diagnostics that stay silent when the session is healthy.
 
