@@ -192,6 +192,22 @@ Each pattern describes what was observed. Nothing is estimated or inferred.
 
 ---
 
+## Skill or plugin?
+
+Orbit Prompt is a **skill**. It is distributed as a **Claude Code plugin**.
+
+These are two different things:
+
+| Term | What it means |
+|---|---|
+| Plugin | The installable package (`orbit-prompt`) |
+| Skill | The functional resource delivered by the plugin |
+| `/orbit-prompt` | The slash command you type in Claude Code |
+
+You install the plugin once. The plugin delivers the skill. The skill appears as `/orbit-prompt` in the autocomplete. After that, you never interact with the plugin directly again.
+
+---
+
 ## Install
 
 ### Claude Code plugin (recommended)
