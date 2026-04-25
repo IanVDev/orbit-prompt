@@ -196,6 +196,9 @@ Each pattern describes what was observed. Nothing is estimated or inferred.
 
 ### Claude Code plugin (recommended)
 
+> **Do not paste these commands in your terminal (zsh, bash, PowerShell).**
+> They are Claude Code slash commands. Open Claude Code first, then type them in the chat input.
+
 Installs the skill, the `/orbit-prompt` slash command, and the autocomplete entry in one sequence. You do not need to clone this repository, download any file, or copy anything manually.
 
 **Step 1 — Add the marketplace**
@@ -227,6 +230,22 @@ Applies the installation. After this, the slash command is active in the current
 Type `/` in Claude Code. `/orbit-prompt` should appear in the autocomplete list.
 
 If it does not appear, run `/reload-plugins` once more and type `/` again.
+
+### Common error
+
+If you paste a command in your terminal instead of Claude Code, you will see:
+
+```
+zsh: no such file or directory: /plugin
+```
+
+This happens because `/plugin` is not a shell command. It is a Claude Code internal command. Open Claude Code and type the command there.
+
+| Command | Where to run |
+|---|---|
+| `/plugin marketplace add ...` | Inside Claude Code |
+| `/plugin install ...` | Inside Claude Code |
+| `/reload-plugins` | Inside Claude Code |
 
 ### As a system prompt (any LLM)
 
