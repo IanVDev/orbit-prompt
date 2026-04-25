@@ -3,17 +3,15 @@
 #
 # Contrato (fail-closed, qualquer violação → exit 1):
 #   1. .claude-plugin/plugin.json existe
-#   2. .claude-plugin/marketplace.json existe
-#   3. skills/orbit-prompt/SKILL.md existe
-#   4. commands/orbit-prompt.md existe
-#   5. commands/orbit-prompt.md referencia "orbit-prompt"
-#   6. README.md não apresenta o curl manual como caminho recomendado
-#      (qualquer ocorrência de `curl` no README deve aparecer somente
-#       depois da seção "Manual fallback")
-#   7. README.md menciona o caminho recomendado via /plugin install
-#   8. README.md menciona /orbit-prompt como comando público
+#   2. .claude-plugin/marketplace.json existe e source é objeto github válido
+#   3. skills/orbit-prompt/SKILL.md existe (superfície pública /orbit-prompt)
+#   4. commands/orbit-prompt.md NÃO existe — presença cria /orbit-prompt:orbit-prompt,
+#      duplicando a skill e confundindo o autocomplete
+#   5. README.md não apresenta curl como caminho recomendado
+#   6. README.md menciona /plugin install como caminho recomendado
+#   7. README.md menciona /orbit-prompt como comando público
 #
-# Sem dependências externas (bash, grep, awk).
+# Sem dependências externas além de python3 (para validação JSON).
 # Uso: bash scripts/check_claude_plugin_layout.sh
 
 set -euo pipefail
@@ -61,17 +59,15 @@ pass "${MARKETPLACE_JSON} source schema valid (github object)"
   || fail "${SKILL_MD} missing"
 pass "${SKILL_MD} present"
 
-# ── 4. command bridge ───────────────────────────────────────────────────
-[[ -f "${CMD_MD}" ]] \
-  || fail "${CMD_MD} missing"
-pass "${CMD_MD} present"
+# ── 4. no duplicate command wrapper ─────────────────────────────────────
+# commands/orbit-prompt.md would expose /orbit-prompt:orbit-prompt alongside
+# the skill's /orbit-prompt, creating two near-identical autocomplete entries.
+# The skill alone is the public surface; the command wrapper must not exist.
+[[ ! -f "${CMD_MD}" ]] \
+  || fail "${CMD_MD} exists — it creates /orbit-prompt:orbit-prompt, duplicating the skill's /orbit-prompt. Remove it."
+pass "no duplicate command wrapper in plugin root"
 
-# ── 5. command references the skill name ────────────────────────────────
-grep -q "orbit-prompt" "${CMD_MD}" \
-  || fail "${CMD_MD} does not reference 'orbit-prompt'"
-pass "${CMD_MD} references orbit-prompt"
-
-# ── 6. README does not present curl as the recommended path ─────────────
+# ── 5. README does not present curl as the recommended path ─────────────
 [[ -f "${README}" ]] \
   || fail "${README} missing"
 
@@ -88,12 +84,12 @@ if [[ -n "${curl_line}" ]]; then
 fi
 pass "README curl placement OK (curl confined to Manual fallback)"
 
-# ── 7. README announces /plugin install as the recommended path ─────────
+# ── 6. README announces /plugin install as the recommended path ─────────
 grep -q "/plugin install" "${README}" \
   || fail "README does not announce '/plugin install' as the recommended install path"
 pass "README announces /plugin install"
 
-# ── 8. README exposes /orbit-prompt as the public command ───────────────
+# ── 7. README exposes /orbit-prompt as the public command ───────────────
 grep -q "/orbit-prompt" "${README}" \
   || fail "README does not mention '/orbit-prompt' as the public command"
 pass "README mentions /orbit-prompt"
