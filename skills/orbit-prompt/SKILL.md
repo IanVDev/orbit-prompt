@@ -1,6 +1,6 @@
 ---
 name: orbit-prompt
-version: 1.1.2
+version: 1.2.0
 cli_compat: ">=0.1.2"
 description: >
   Universal prompt for deterministic AI behavior analysis and improvement.
@@ -20,6 +20,18 @@ Primary entry point:
 ```
 
 Everything else (natural-language triggers, automatic diagnosis) is secondary. See "Activation Rules" below.
+
+---
+
+## Language Contract
+
+Default output language: English.
+
+The user may write the request in any language. The final refined prompt, analysis labels (ORIGINAL PROMPT, ANALYSIS, IMPROVED PROMPT, KEY IMPROVEMENTS, READY TO SEND), recommendations, and all output must be written in English by default.
+
+Only respond in another language if the user explicitly requests it (e.g., "respond in Portuguese", "en français", "auf Deutsch").
+
+This rule applies to both surfaces: `/orbit-prompt` output and automatic DIAGNOSIS output.
 
 ---
 

@@ -265,8 +265,8 @@ They evolve independently. The repo version tracks distribution changes (README,
 **Current:**
 
 ```
-Repo:  v0.2.2
-Skill: v1.1.2
+Repo:  v0.2.3
+Skill: v1.2.0
 ```
 
 Internal validation and the source of truth for the skill contract live in `orbit-engine` (gate `G16_skill_version`). This repo mirrors released artifacts only.
@@ -276,8 +276,8 @@ Internal validation and the source of truth for the skill contract live in `orbi
 ## Version
 
 ```
-Version: 0.2.2
-Skill:   v1.1.2
+Version: 0.2.3
+Skill:   v1.2.0
 Status:  Production-ready
 License: Copyright © 2026 Aurya. All rights reserved.
 ```

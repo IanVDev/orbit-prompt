@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.2.3] — 2026-04-25
+
+### Changed
+
+- **Skill v1.1.2 → v1.2.0** — explicit English output language contract added to `SKILL.md`. The skill accepted input in any language but had no explicit rule governing output language, causing Claude to mirror the input language. The contract now states: *Default output language: English. Accept input in any language. Only respond in another language if the user explicitly requests it.*
+- **`.claude/commands/orbit-prompt.md`** — updated output labels to full English format (`ORIGINAL PROMPT`, `ANALYSIS`, `IMPROVED PROMPT`, `KEY IMPROVEMENTS`, `READY TO SEND`) and added the language rule as an explicit instruction in the bridge.
+- **`scripts/check_skill_language_contract.sh`** — new fail-closed validation script. Asserts the language rule exists in `SKILL.md`. Guards against silent regression.
+
+### Behavior difference
+
+**Before (v1.1.2):** User writes in Portuguese → skill responds in Portuguese.
+**After (v1.2.0):** User writes in Portuguese → skill responds in English by default. User may request another language explicitly.
+
+---
+
 ## [0.2.2] — 2026-04-25
 
 ### Added
