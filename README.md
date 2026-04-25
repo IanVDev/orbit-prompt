@@ -194,22 +194,72 @@ Each pattern describes what was observed. Nothing is estimated or inferred.
 
 ## Install
 
-**Recommended — Claude Code plugin:**
+### Claude Code plugin (recommended)
+
+Installs the skill, the `/orbit-prompt` slash command, and the autocomplete entry in one sequence. You do not need to clone this repository, download any file, or copy anything manually.
+
+**Step 1 — Add the marketplace**
 
 ```
 /plugin marketplace add IanVDev/orbit-prompt
+```
+
+Registers this repository as a plugin source inside Claude Code.
+
+**Step 2 — Install the plugin**
+
+```
 /plugin install orbit-prompt@orbit-prompt
+```
+
+Downloads and installs the `orbit-prompt` plugin from the source added above.
+
+**Step 3 — Reload plugins**
+
+```
 /reload-plugins
 ```
 
-This single path ships the skill, the `/orbit-prompt` slash command, and the autocomplete entry. After `/reload-plugins`, type `/` and `/orbit-prompt` appears in the autocomplete. No manual file copying.
+Applies the installation. After this, the slash command is active in the current session.
 
-**As a system prompt (any LLM):**
+**Step 4 — Confirm it worked**
+
+Type `/` in Claude Code. `/orbit-prompt` should appear in the autocomplete list.
+
+If it does not appear, run `/reload-plugins` once more and type `/` again.
+
+### As a system prompt (any LLM)
 
 ```bash
 unzip orbit-prompt.skill
 # Use the contents of SKILL.md as your system prompt
 ```
+
+---
+
+## Quick start
+
+After installing, use:
+
+```
+/orbit-prompt your request here
+```
+
+Describe what you want in plain language. The skill structures it into a prompt that is scoped, constrained, and verifiable.
+
+**Example:**
+
+```
+/orbit-prompt review this project for bugs, security risks, and improvement points
+```
+
+The skill returns:
+
+- **ORIGINAL PROMPT** — what you wrote, unchanged
+- **ANALYSIS** — what is ambiguous or missing (max 3 items)
+- **IMPROVED PROMPT** — a structured version with scope and success criteria
+- **KEY IMPROVEMENTS** — what was added and why
+- **READY TO SEND** — `Yes` or `No`, with reason if no
 
 ---
 
