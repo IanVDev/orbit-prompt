@@ -3,13 +3,15 @@
 #
 # Contrato (fail-closed, qualquer violação → exit 1):
 #   1. .claude-plugin/plugin.json existe
-#   2. skills/orbit-prompt/SKILL.md existe
-#   3. commands/orbit-prompt.md existe
-#   4. commands/orbit-prompt.md referencia "orbit-prompt"
-#   5. README.md não apresenta o curl manual como caminho recomendado
+#   2. .claude-plugin/marketplace.json existe
+#   3. skills/orbit-prompt/SKILL.md existe
+#   4. commands/orbit-prompt.md existe
+#   5. commands/orbit-prompt.md referencia "orbit-prompt"
+#   6. README.md não apresenta o curl manual como caminho recomendado
 #      (qualquer ocorrência de `curl` no README deve aparecer somente
 #       depois da seção "Manual fallback")
-#   6. README.md menciona o caminho recomendado via /plugin install
+#   7. README.md menciona o caminho recomendado via /plugin install
+#   8. README.md menciona /orbit-prompt como comando público
 #
 # Sem dependências externas (bash, grep, awk).
 # Uso: bash scripts/check_claude_plugin_layout.sh
@@ -20,6 +22,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${REPO_ROOT}"
 
 PLUGIN_JSON=".claude-plugin/plugin.json"
+MARKETPLACE_JSON=".claude-plugin/marketplace.json"
 SKILL_MD="skills/orbit-prompt/SKILL.md"
 CMD_MD="commands/orbit-prompt.md"
 README="README.md"
@@ -36,22 +39,27 @@ echo ""
   || fail "${PLUGIN_JSON} missing"
 pass "${PLUGIN_JSON} present"
 
-# ── 2. skill ────────────────────────────────────────────────────────────
+# ── 2. marketplace.json ─────────────────────────────────────────────────
+[[ -f "${MARKETPLACE_JSON}" ]] \
+  || fail "${MARKETPLACE_JSON} missing"
+pass "${MARKETPLACE_JSON} present"
+
+# ── 3. skill ────────────────────────────────────────────────────────────
 [[ -f "${SKILL_MD}" ]] \
   || fail "${SKILL_MD} missing"
 pass "${SKILL_MD} present"
 
-# ── 3. command bridge ───────────────────────────────────────────────────
+# ── 4. command bridge ───────────────────────────────────────────────────
 [[ -f "${CMD_MD}" ]] \
   || fail "${CMD_MD} missing"
 pass "${CMD_MD} present"
 
-# ── 4. command references the skill name ────────────────────────────────
+# ── 5. command references the skill name ────────────────────────────────
 grep -q "orbit-prompt" "${CMD_MD}" \
   || fail "${CMD_MD} does not reference 'orbit-prompt'"
 pass "${CMD_MD} references orbit-prompt"
 
-# ── 5. README does not present curl as the recommended path ─────────────
+# ── 6. README does not present curl as the recommended path ─────────────
 [[ -f "${README}" ]] \
   || fail "${README} missing"
 
@@ -68,10 +76,15 @@ if [[ -n "${curl_line}" ]]; then
 fi
 pass "README curl placement OK (curl confined to Manual fallback)"
 
-# ── 6. README announces /plugin install as the recommended path ─────────
+# ── 7. README announces /plugin install as the recommended path ─────────
 grep -q "/plugin install" "${README}" \
   || fail "README does not announce '/plugin install' as the recommended install path"
 pass "README announces /plugin install"
+
+# ── 8. README exposes /orbit-prompt as the public command ───────────────
+grep -q "/orbit-prompt" "${README}" \
+  || fail "README does not mention '/orbit-prompt' as the public command"
+pass "README mentions /orbit-prompt"
 
 echo ""
 echo "🟢 claude code plugin layout OK"

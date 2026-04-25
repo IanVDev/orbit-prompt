@@ -199,9 +199,10 @@ Each pattern describes what was observed. Nothing is estimated or inferred.
 ```
 /plugin marketplace add IanVDev/orbit-prompt
 /plugin install orbit-prompt@orbit-prompt
+/reload-plugins
 ```
 
-This single path ships the skill, the `/orbit-prompt` slash command, and the autocomplete entry. Restart the Claude Code session and `/orbit-prompt` appears in `/`. No manual file copying.
+This single path ships the skill, the `/orbit-prompt` slash command, and the autocomplete entry. After `/reload-plugins`, type `/` and `/orbit-prompt` appears in the autocomplete. No manual file copying.
 
 **As a system prompt (any LLM):**
 
@@ -226,6 +227,12 @@ curl -fsSLo .claude/commands/orbit-prompt.md \
 ```
 
 Then restart the Claude Code session. The bridge file is a thin router — the skill contract lives in `orbit-prompt.skill`.
+
+---
+
+## Security and privacy
+
+The skill reads the session history and displays analysis. It does not execute code, call external APIs, write files, or send data anywhere. Nothing leaves your local session.
 
 ---
 
