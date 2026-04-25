@@ -340,6 +340,19 @@ The skill reads the session history and displays analysis. It does not execute c
 
 ---
 
+## Note for contributors
+
+If you have this repository open in Claude Code **and** the plugin installed, you will see two `/orbit-prompt` entries in the autocomplete:
+
+- one from the installed plugin
+- one from the local project (`skills/orbit-prompt/SKILL.md` in this repo, shown as `(project)`)
+
+This is expected behavior in a development environment. Claude Code auto-discovers skills in `skills/*/SKILL.md` within the open project, in addition to installed plugins.
+
+To validate the end-user experience, test in a folder outside this repository. In that context, only one `/orbit-prompt` entry should appear.
+
+---
+
 ## SkillsMP / `SKILL.md` source
 
 For marketplaces and tools that index the open `SKILL.md` format directly, the authoritative skill definition is exposed at:
