@@ -110,7 +110,6 @@ analyze cost
 /analyze-cost
 how efficient is this?
 is this optimal?
-Before answering, apply orbit-engine
 ```
 
 These are optional. The recommended flow is `/orbit-prompt` for prompt improvement and automatic detection for diagnosis.
@@ -412,8 +411,6 @@ Repo:  v0.3.0
 Skill: v1.2.0
 ```
 
-Internal validation and the source of truth for the skill contract live in `orbit-engine` (gate `G16_skill_version`). This repo mirrors released artifacts only.
-
 ---
 
 ## Version
@@ -425,4 +422,4 @@ Status:  Production-ready
 License: Copyright © 2026 Aurya. All rights reserved.
 ```
 
-Developed by Aurya as part of Orbit Engine.
+Developed by Aurya.

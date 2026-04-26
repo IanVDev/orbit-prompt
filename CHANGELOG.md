@@ -81,7 +81,6 @@ All notable changes to this project will be documented in this file.
 
 ### Infrastructure
 
-- Validation source of truth moved to `orbit-engine` (gate `G16_skill_version` enforces SSOT ↔ README marker ↔ tag consistency).
 - This repo now mirrors released artifacts only — no internal logic.
 
 ---
