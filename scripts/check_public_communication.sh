@@ -122,5 +122,37 @@ case "${mdesc}" in
   *) fail "${MARKETPLACE_JSON} plugins[0].description must start with 'A Claude Code plugin' — got: '${mdesc}'" ;;
 esac
 
+# ── 12. README has no public references to a separate orbit-engine ─────
+# The brand "Orbit Engine" inside example output blocks (```...```) is
+# allowed because it mirrors what the skill literally prints — those are
+# runtime artifacts. Outside fenced blocks, no mention is allowed.
+outside_block_hits=$(awk '
+  /^```/ { inblock = !inblock; next }
+  inblock { next }
+  /Orbit Engine/ || /orbit-engine/ { print NR ": " $0 }
+' "${README}")
+if [[ -n "${outside_block_hits}" ]]; then
+  echo "${outside_block_hits}" >&2
+  fail "README mentions orbit-engine outside example code blocks"
+fi
+pass "README has no orbit-engine references outside example blocks"
+
+# Also forbid the lowercase project token even inside fenced blocks —
+# example outputs use the brand "Orbit Engine" with spaces, never the
+# hyphenated project slug.
+if grep -Fq "orbit-engine" "${README}"; then
+  fail "README references the orbit-engine project slug"
+fi
+pass "README has no 'orbit-engine' project slug"
+
+# ── 13. CHANGELOG has no orbit-engine references ───────────────────────
+if [[ -f CHANGELOG.md ]]; then
+  if grep -Eq "orbit-engine|Orbit Engine" CHANGELOG.md; then
+    grep -nE "orbit-engine|Orbit Engine" CHANGELOG.md >&2
+    fail "CHANGELOG.md mentions orbit-engine"
+  fi
+  pass "CHANGELOG.md has no orbit-engine references"
+fi
+
 echo ""
 echo "🟢 public communication OK"
