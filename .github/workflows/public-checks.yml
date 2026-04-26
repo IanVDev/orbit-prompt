@@ -1,0 +1,35 @@
+name: public-checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  public-surface:
+    name: validate public surface
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Skill public layout
+        run: bash scripts/check_skill_public_layout.sh
+
+      - name: Claude Code plugin layout
+        run: bash scripts/check_claude_plugin_layout.sh
+
+      - name: Skill language contract
+        run: bash scripts/check_skill_language_contract.sh
+
+      - name: Public communication
+        run: bash scripts/check_public_communication.sh
