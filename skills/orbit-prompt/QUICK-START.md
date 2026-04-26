@@ -1,8 +1,8 @@
-# Quick Start — Orbit Engine with /orbit-prompt Command
+# Quick Start — Orbit Prompt with /orbit-prompt Command
 
 ## 2-minute overview
 
-Orbit Engine does two things:
+Orbit Prompt does two things:
 
 ### 1. **Diagnoses inefficiency** (automatic)
 Detects waste patterns in your work and suggests improvements.

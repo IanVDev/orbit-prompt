@@ -1,4 +1,4 @@
-# Orbit Engine — Examples with /orbit-prompt Command
+# Orbit Prompt — Examples with /orbit-prompt Command
 
 Real scenarios showing both diagnosis and prompt improvement.
 
@@ -17,7 +17,7 @@ User thinks: "I should improve my prompt before sending"
 **Orbit output:**
 
 ```
-[Orbit Engine — Prompt Refinement]
+[Orbit Prompt — Prompt Refinement]
 
 ORIGINAL PROMPT:
 "Refactor the authentication system"
@@ -59,7 +59,7 @@ User sends to Claude:
 Orbit detects "weak prompt" pattern and diagnoses:
 
 ```
-[Orbit Engine]
+[Orbit Prompt]
 
 DIAGNOSIS:
 - Large task with no file targets, data sources, or scope limits
@@ -82,7 +82,7 @@ User then runs:
 Orbit improves:
 
 ```
-[Orbit Engine — Prompt Refinement]
+[Orbit Prompt — Prompt Refinement]
 
 ORIGINAL PROMPT:
 "Build a dashboard"
@@ -141,7 +141,7 @@ With `/orbit-prompt`:
 Orbit improves:
 
 ```
-[Orbit Engine — Prompt Refinement]
+[Orbit Prompt — Prompt Refinement]
 
 ORIGINAL PROMPT:
 "Make the API faster"
@@ -189,7 +189,7 @@ Running `/orbit-prompt`:
 Orbit returns:
 
 ```
-[Orbit Engine — Prompt Refinement]
+[Orbit Prompt — Prompt Refinement]
 
 ORIGINAL PROMPT:
 "Update the payment flow"
@@ -255,7 +255,7 @@ No waste detected. Session is healthy.
 Orbit response:
 
 ```
-[Orbit Engine — Prompt Refinement]
+[Orbit Prompt — Prompt Refinement]
 
 ORIGINAL PROMPT:
 "Implement webhook handler for Stripe payments"
