@@ -37,6 +37,7 @@ not produce a verifiable artifact, write `none` and note why.
 | Date (YYYY-MM-DD) | Channel | Link | Feedback received | Action taken | Test added / updated |
 |-------------------|---------|------|-------------------|--------------|----------------------|
 | 2026-04-26 | internal launch prep | branch `claude/orbit-prompt-public-launch-JT5ss` | Public copy mixed "skill" and "plugin" framing in headlines and lacked an explicit feedback path | Reframed README plugin-first, added canonical short description, added feedback issue template, added this ledger | `scripts/check_public_communication.sh` |
+| 2026-04-26 | merge to main | PR https://github.com/IanVDev/orbit-prompt/pull/1 (merge commit `bdd96e0`) | `validate public surface` ran green on the PR before merge | Merged PR #1 to `main`; CI workflow `public-checks` is now live on `main` and runs on every PR | `.github/workflows/public-checks.yml` (gates `scripts/check_public_communication.sh` on PRs to `main`) |
 
 ## Guidelines
 
