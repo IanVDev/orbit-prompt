@@ -122,37 +122,48 @@ case "${mdesc}" in
   *) fail "${MARKETPLACE_JSON} plugins[0].description must start with 'A Claude Code plugin' — got: '${mdesc}'" ;;
 esac
 
-# ── 12. README has no public references to a separate orbit-engine ─────
-# The brand "Orbit Engine" inside example output blocks (```...```) is
-# allowed because it mirrors what the skill literally prints — those are
-# runtime artifacts. Outside fenced blocks, no mention is allowed.
-outside_block_hits=$(awk '
-  /^```/ { inblock = !inblock; next }
-  inblock { next }
-  /Orbit Engine/ || /orbit-engine/ { print NR ": " $0 }
-' "${README}")
-if [[ -n "${outside_block_hits}" ]]; then
-  echo "${outside_block_hits}" >&2
-  fail "README mentions orbit-engine outside example code blocks"
-fi
-pass "README has no orbit-engine references outside example blocks"
+# ── 12-N. No orbit-engine references anywhere in the public surface ────
+# Distributed files include README, CHANGELOG, the bundled skill docs,
+# and every entry inside the orbit-prompt.skill ZIP. The strategic rule
+# is: the brand "Orbit Prompt" is the only persona in distributed text.
+# "Orbit Engine" / "orbit-engine" / "orbit engine" must not appear in
+# any of these files.
+DIST_FILES=(
+  "README.md"
+  "CHANGELOG.md"
+  "skills/orbit-prompt/SKILL.md"
+  "skills/orbit-prompt/EXAMPLES.md"
+  "skills/orbit-prompt/ONBOARDING.md"
+  "skills/orbit-prompt/QUICK-START.md"
+)
+FORBIDDEN_RE='Orbit Engine|orbit-engine|orbit engine'
 
-# Also forbid the lowercase project token even inside fenced blocks —
-# example outputs use the brand "Orbit Engine" with spaces, never the
-# hyphenated project slug.
-if grep -Fq "orbit-engine" "${README}"; then
-  fail "README references the orbit-engine project slug"
-fi
-pass "README has no 'orbit-engine' project slug"
-
-# ── 13. CHANGELOG has no orbit-engine references ───────────────────────
-if [[ -f CHANGELOG.md ]]; then
-  if grep -Eq "orbit-engine|Orbit Engine" CHANGELOG.md; then
-    grep -nE "orbit-engine|Orbit Engine" CHANGELOG.md >&2
-    fail "CHANGELOG.md mentions orbit-engine"
+scan_file() {
+  local file="$1"
+  [[ -f "${file}" ]] || return 0
+  if grep -nEi "${FORBIDDEN_RE}" "${file}" >/dev/null 2>&1; then
+    grep -nEi "${FORBIDDEN_RE}" "${file}" >&2
+    fail "${file} contains forbidden orbit-engine reference"
   fi
-  pass "CHANGELOG.md has no orbit-engine references"
+  pass "${file} has no orbit-engine references"
+}
+
+for f in "${DIST_FILES[@]}"; do
+  scan_file "${f}"
+done
+
+# Scan inside the packaged orbit-prompt.skill ZIP (each entry).
+SKILL_ZIP="orbit-prompt.skill"
+[[ -f "${SKILL_ZIP}" ]] || fail "${SKILL_ZIP} missing"
+TMP_ZIP="$(mktemp -d)"
+trap 'rm -rf "${TMP_ZIP}"' EXIT
+unzip -qq "${SKILL_ZIP}" -d "${TMP_ZIP}"
+zip_hits=$(grep -rnEi "${FORBIDDEN_RE}" "${TMP_ZIP}" 2>/dev/null || true)
+if [[ -n "${zip_hits}" ]]; then
+  echo "${zip_hits}" >&2
+  fail "${SKILL_ZIP} contains forbidden orbit-engine references"
 fi
+pass "${SKILL_ZIP} entries have no orbit-engine references"
 
 echo ""
 echo "🟢 public communication OK"

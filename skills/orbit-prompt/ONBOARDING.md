@@ -1,10 +1,10 @@
-# Orbit Engine Prompt — Onboarding
+# Orbit Prompt — Onboarding
 
-Welcome to Orbit Engine — your AI efficiency advisor with a built-in prompt improver.
+Welcome to Orbit Prompt — your AI efficiency advisor with a built-in prompt improver.
 
 ## What it does
 
-Orbit Engine serves two purposes:
+Orbit Prompt serves two purposes:
 
 ### 1. **Diagnoses waste** (automatic, silent when healthy)
 

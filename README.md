@@ -18,7 +18,7 @@ A Claude Code plugin that turns rough ideas into structured prompts.
 
 **After:**
 ```
-[Orbit Engine — Prompt Analysis]
+[Orbit Prompt — Prompt Analysis]
 
 ORIGINAL: "Refactor auth module"
 
@@ -72,7 +72,7 @@ The plugin reads the prompt, identifies what is missing (scope, acceptance crite
 **Output:**
 
 ```
-[Orbit Engine — Prompt Analysis]
+[Orbit Prompt — Prompt Analysis]
 
 ORIGINAL:
 "Refactor auth module"
@@ -117,7 +117,7 @@ These are optional. The recommended flow is `/orbit-prompt` for prompt improveme
 **Output:**
 
 ```
-[Orbit Engine]
+[Orbit Prompt]
 
 DIAGNOSIS:
 - Correction chain: 3 follow-ups correcting the same output
@@ -158,7 +158,7 @@ Turn 4: "Keep the original signature"
 **Diagnosis:**
 
 ```
-[Orbit Engine]
+[Orbit Prompt]
 
 DIAGNOSIS:
 - 3 follow-up corrections after initial output
@@ -408,7 +408,7 @@ They evolve independently. The repo version tracks distribution changes (README,
 
 ```
 Repo:  v0.3.0
-Skill: v1.2.0
+Skill: v1.2.1
 ```
 
 ---
@@ -417,7 +417,7 @@ Skill: v1.2.0
 
 ```
 Version: 0.3.0
-Skill:   v1.2.0
+Skill:   v1.2.1
 Status:  Production-ready
 License: Copyright © 2026 Aurya. All rights reserved.
 ```
