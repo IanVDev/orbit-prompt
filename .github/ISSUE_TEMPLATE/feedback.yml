@@ -1,0 +1,62 @@
+name: User feedback
+description: Report a problem, ask a question, or share feedback about orbit-prompt.
+title: "[feedback] "
+labels: ["feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying orbit-prompt. Please redact any secrets, tokens, file paths, or proprietary content from prompts and logs before submitting. The maintainers cannot see your private session.
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Claude Code version, OS, terminal, and orbit-prompt plugin version.
+      placeholder: "Claude Code 0.x.y on macOS 14, orbit-prompt v0.3.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Command used
+      description: The exact command or interaction that triggered the issue. Use a fenced code block.
+      placeholder: |
+        /orbit-prompt "Refactor auth module"
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: What actually happened? Include error messages verbatim.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (redacted)
+      description: Paste relevant logs with secrets, tokens, internal paths, and proprietary content removed.
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: redaction
+    attributes:
+      label: Redaction confirmation
+      options:
+        - label: I have removed secrets, tokens, internal paths, and proprietary content from this report.
+          required: true
