@@ -1,7 +1,9 @@
 https://github.com/user-attachments/assets/747913ce-ed00-4622-82fb-29b8e8dd4028
 
 
-# Orbit Prompt Skill
+# Orbit Prompt
+
+A Claude Code plugin that turns rough ideas into structured prompts.
 
 **Most AI correction turns are caused by vague prompts, not by the model.**
 
@@ -32,18 +34,18 @@ src/validators/password.ts. Keep existing function signatures.
 Do not touch OAuth flow or routes. Done = all existing tests pass."
 ```
 
-You copy what you want. Or ignore it. The skill sends nothing.
+You copy what you want. Or ignore it. The plugin sends nothing.
 
 ---
 
 ## What it is
 
-A skill for Claude Code with two surfaces:
+A Claude Code plugin that turns rough ideas into structured prompts. It exposes two surfaces:
 
-1. **`/orbit-prompt`** (primary) — You request an analysis of a prompt before sending it. The skill identifies gaps and suggests a structured version. You decide whether to use it.
-2. **Session diagnostics** (automatic, silent by default) — The skill observes the session and only surfaces a diagnosis when it detects one of the 8 inefficiency patterns. When the session is healthy, it stays silent.
+1. **`/orbit-prompt`** (primary) — You request an analysis of a prompt before sending it. The plugin identifies gaps and suggests a structured version. You decide whether to use it.
+2. **Session diagnostics** (automatic, silent by default) — It observes the session and only surfaces a diagnosis when it detects one of the 8 inefficiency patterns. When the session is healthy, it stays silent.
 
-The skill **does not modify anything.** It reads, analyzes, and displays. You act.
+The plugin **does not modify anything.** It reads, analyzes, and displays. You act.
 
 ---
 
@@ -59,7 +61,7 @@ Use when you want to review a prompt before sending it.
 
 **What happens:**
 
-The skill reads the prompt, identifies what is missing (scope, acceptance criteria, boundaries) and displays a suggested version. You read it and decide whether to use it, adapt it, or discard it.
+The plugin reads the prompt, identifies what is missing (scope, acceptance criteria, boundaries) and displays a suggested version. You read it and decide whether to use it, adapt it, or discard it.
 
 **Example:**
 
@@ -93,13 +95,13 @@ CHANGES MADE:
 - Added verifiable success criterion
 ```
 
-You copy what you want. Or ignore it. The skill sends nothing.
+You copy what you want. Or ignore it. The plugin sends nothing.
 
 ---
 
 ## Session Diagnostics
 
-The skill watches the session and surfaces a diagnosis only when it detects one of the 8 patterns. If the session is healthy, it stays silent. You do not trigger anything — automatic detection is the default.
+The plugin watches the session and surfaces a diagnosis only when it detects one of the 8 patterns. If the session is healthy, it stays silent. You do not trigger anything — automatic detection is the default.
 
 **Advanced triggers (optional):** if you want to force a diagnosis on demand instead of waiting for automatic detection, these natural-language phrases work:
 
@@ -194,17 +196,17 @@ Each pattern describes what was observed. Nothing is estimated or inferred.
 
 ## Skill or plugin?
 
-Orbit Prompt is a **skill**. It is distributed as a **Claude Code plugin**.
+`orbit-prompt` is distributed as a **Claude Code plugin**. Internally, it includes the `orbit-prompt` skill used by Claude Code.
 
 These are two different things:
 
 | Term | What it means |
 |---|---|
 | Plugin | The installable package (`orbit-prompt`) |
-| Skill | The functional resource delivered by the plugin |
+| Skill | The functional resource bundled inside the plugin |
 | `/orbit-prompt` | The slash command you type in Claude Code |
 
-You install the plugin once. The plugin delivers the skill. The skill appears as `/orbit-prompt` in the autocomplete. After that, you never interact with the plugin directly again.
+You install the plugin once. Claude Code wires the bundled skill behind the `/orbit-prompt` slash command. After that, you never interact with the plugin directly again.
 
 ---
 
@@ -299,7 +301,7 @@ After installing, use:
 /orbit-prompt your request here
 ```
 
-Describe what you want in plain language. The skill structures it into a prompt that is scoped, constrained, and verifiable.
+Describe what you want in plain language. The plugin structures it into a prompt that is scoped, constrained, and verifiable.
 
 **Example:**
 
@@ -307,7 +309,7 @@ Describe what you want in plain language. The skill structures it into a prompt 
 /orbit-prompt review this project for bugs, security risks, and improvement points
 ```
 
-The skill returns:
+The plugin returns:
 
 - **ORIGINAL PROMPT** — what you wrote, unchanged
 - **ANALYSIS** — what is ambiguous or missing (max 3 items)
@@ -336,7 +338,18 @@ Then restart the Claude Code session. The bridge file is a thin router — the s
 
 ## Security and privacy
 
-The skill reads the session history and displays analysis. It does not execute code, call external APIs, write files, or send data anywhere. Nothing leaves your local session.
+The plugin reads the session history and displays analysis. It does not execute code, call external APIs, write files, or send data anywhere. Nothing leaves your local session.
+
+---
+
+## Feedback and issues
+
+Found a bug, a confusing message, or want to suggest an improvement?
+
+- Open an issue: <https://github.com/IanVDev/orbit-prompt/issues>
+- Use the **User feedback** template when available — it asks for environment, command, observed behavior, expected behavior, and redacted logs.
+
+Please redact secrets, tokens, and proprietary content before submitting.
 
 ---
 
