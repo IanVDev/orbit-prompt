@@ -11,28 +11,65 @@ A Claude Code plugin that turns rough ideas into structured prompts.
 
 ---
 
+### Example: turning a vague request into an actionable prompt
+
 **Before:**
-```
-/orbit-prompt "Refactor auth module"
+
+```bash
+/orbit-prompt "Fix the login flow"
 ```
 
 **After:**
-```
-[Orbit Prompt — Prompt Analysis]
 
-ORIGINAL: "Refactor auth module"
+```text
+[Orbit Prompt: Prompt Analysis]
+
+ORIGINAL:
+"Fix the login flow"
 
 GAPS:
-- No file target (which file?)
-- No scope boundary (password? OAuth? both?)
-- No acceptance criteria (what does done look like?)
-- Risk: high speculation — will require corrections
+- No platform or file target.
+- No failure mode described.
+- No expected behavior.
+- No regression boundary.
+- No validation plan.
 
-SUGGESTED:
-"Extract password validation from src/auth/auth.ts into
-src/validators/password.ts. Keep existing function signatures.
-Do not touch OAuth flow or routes. Done = all existing tests pass."
+RISK:
+High speculation. A model may rewrite unrelated authentication code, change session behavior, or modify parts of the login flow that are not related to the actual issue.
+
+SUGGESTED PROMPT:
+
+Investigate and fix the login redirect issue in the web app.
+
+Context:
+Users can submit valid credentials, but after login they are sometimes redirected back to the login page instead of reaching the dashboard.
+
+Scope:
+- Focus only on the web login flow.
+- Start by inspecting the auth route, session handling, and dashboard redirect guard.
+- Do not refactor the full authentication module.
+- Do not change password validation, OAuth behavior, or API contracts unless a failing test proves they are involved.
+- Prefer the smallest safe change that fixes the redirect behavior.
+
+Expected work:
+1. Reproduce or identify the redirect failure path.
+2. Find the smallest safe code change.
+3. Add or update one regression test that proves a valid logged-in user reaches the dashboard.
+4. Keep existing tests passing.
+
+Acceptance criteria:
+- Valid login redirects to the dashboard.
+- Invalid login keeps the current error behavior.
+- Existing session behavior remains unchanged.
+- At least one regression test covers the redirect behavior.
+- No unrelated authentication files are modified.
+- All existing tests pass.
+
+Recommended first step:
+Search for the login submit handler, session persistence logic, and dashboard redirect guard before editing code.
 ```
+
+This turns a vague request into a scoped engineering task with a clear target, explicit risk, safe boundaries, acceptance criteria, and a regression test.
 
 You copy what you want. Or ignore it. The plugin sends nothing.
 
