@@ -1,0 +1,36 @@
+{
+  "name": "orbit-prompt-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:links": "node ./scripts/check_links.mjs",
+    "check:content": "node ./scripts/check_public_content.mjs",
+    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm check:content && pnpm check:links && pnpm build"
+  },
+  "dependencies": {
+    "next": "16.2.4",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.7",
+    "@types/react": "19.2.0",
+    "@types/react-dom": "19.2.0",
+    "autoprefixer": "10.4.20",
+    "eslint": "9.18.0",
+    "eslint-config-next": "16.2.4",
+    "postcss": "8.5.1",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.7.3",
+    "vitest": "2.1.8"
+  },
+  "packageManager": "pnpm@10.0.0"
+}

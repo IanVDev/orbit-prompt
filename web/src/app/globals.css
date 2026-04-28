@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background-color: #07080b;
+  color: #e7eaf3;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: rgba(124, 140, 255, 0.35);
+  color: #fff;
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-6 sm:px-8;
+  }
+
+  .surface {
+    @apply rounded-xl border border-border bg-bg-raised;
+  }
+
+  .surface-strong {
+    @apply rounded-xl border border-border-strong bg-bg-subtle;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-bg
+           transition hover:bg-accent-strong focus:outline-none focus:ring-2 focus:ring-accent-glow focus:ring-offset-2
+           focus:ring-offset-bg;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-border-strong px-4 py-2.5
+           text-sm font-medium text-fg transition hover:border-accent hover:text-accent focus:outline-none
+           focus:ring-2 focus:ring-accent-glow focus:ring-offset-2 focus:ring-offset-bg;
+  }
+
+  .kbd {
+    @apply rounded-md border border-border-strong bg-bg-subtle px-1.5 py-0.5 font-mono text-xs text-fg-muted;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-border-strong bg-bg-raised px-3 py-1
+           text-xs font-medium text-fg-muted;
+  }
+
+  .heading-eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-accent;
+  }
+
+  .heading-1 {
+    @apply text-balance text-4xl font-semibold tracking-tight text-fg sm:text-5xl;
+  }
+
+  .heading-2 {
+    @apply text-balance text-2xl font-semibold tracking-tight text-fg sm:text-3xl;
+  }
+
+  .lead {
+    @apply text-pretty text-base text-fg-muted sm:text-lg;
+  }
+}
