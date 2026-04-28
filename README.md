@@ -22,23 +22,17 @@ A Claude Code plugin that turns rough ideas into structured prompts.
 **After:**
 
 ```text
-[Orbit Prompt: Prompt Analysis]
+[Orbit Prompt — Prompt Refinement]
 
-ORIGINAL:
+ORIGINAL PROMPT:
 "Fix the login flow"
 
-GAPS:
-- No platform or file target.
-- No failure mode described.
-- No expected behavior.
-- No regression boundary.
-- No validation plan.
+ANALYSIS:
+- No failure mode identified (what exactly is broken?)
+- No scope boundary (which part of the login flow?)
+- No success criterion (how do we know it is fixed?)
 
-RISK:
-High speculation. A model may rewrite unrelated authentication code, change session behavior, or modify parts of the login flow that are not related to the actual issue.
-
-SUGGESTED PROMPT:
-
+IMPROVED PROMPT:
 Investigate and fix the login redirect issue in the web app.
 
 Context:
@@ -67,11 +61,17 @@ Acceptance criteria:
 
 Recommended first step:
 Search for the login submit handler, session persistence logic, and dashboard redirect guard before editing code.
+
+KEY IMPROVEMENTS:
+- Added specific failure mode (redirect to login page after valid credentials)
+- Scoped to web login flow only — excludes password validation, OAuth, and unrelated auth code
+- Defined explicit acceptance criteria with a required regression test
+
+READY TO SEND:
+Yes
 ```
 
-This turns a vague request into a scoped engineering task with a clear target, explicit risk, safe boundaries, acceptance criteria, and a regression test.
-
-You copy what you want. Or ignore it. The plugin sends nothing.
+This turns a vague request into a scoped engineering task with a clear target, safe boundaries, acceptance criteria, and a regression test.
 
 ---
 
