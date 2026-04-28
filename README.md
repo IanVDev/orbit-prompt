@@ -13,13 +13,13 @@ A Claude Code plugin that turns rough ideas into structured prompts.
 
 ### Example: turning a vague request into an actionable prompt
 
-**Dev Command:**
+**Example:**
 
 ```bash
 /orbit-prompt "Fix the login flow"
 ```
 
-**Orbit Refinement:**
+**Output:**
 
 ```text
 [Orbit Prompt — Prompt Refinement]
