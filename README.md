@@ -68,7 +68,7 @@ KEY IMPROVEMENTS:
 - Defined explicit acceptance criteria with a required regression test
 
 READY TO SEND:
-Yes
+Yes — the request now has a specific failure mode, clear scope boundaries, and measurable acceptance criteria.
 ```
 
 This turns a vague request into a scoped engineering task with a clear target, safe boundaries, acceptance criteria, and a regression test.
@@ -351,7 +351,7 @@ The plugin returns:
 - **ANALYSIS** — what is ambiguous or missing (max 3 items)
 - **IMPROVED PROMPT** — a structured version with scope and success criteria
 - **KEY IMPROVEMENTS** — what was added and why
-- **READY TO SEND** — `Yes` or `No`, with reason if no
+- **READY TO SEND** — `Yes` or `No`, always followed by reason
 
 ---
 
