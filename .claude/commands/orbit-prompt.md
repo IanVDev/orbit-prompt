@@ -1,5 +1,5 @@
 ---
-description: Analyze and improve your prompt before sending — returns ORIGINAL PROMPT, ANALYSIS, IMPROVED PROMPT, KEY IMPROVEMENTS, READY TO SEND. Optional --persona/--context/--contract for layered composition.
+description: Analyze and improve your prompt before sending — returns ORIGINAL PROMPT, ANALYSIS, IMPROVED PROMPT, KEY IMPROVEMENTS, READY TO SEND. Optional --persona/--contract (with --context-file) for layered composition.
 ---
 
 Apply the orbit-prompt skill to the user's request.
@@ -8,17 +8,18 @@ Apply the orbit-prompt skill to the user's request.
 
 **Mode selection:**
 
-If the request begins with any of `--persona=`, `--context=`, or `--contract=`, run **layered mode**:
+If the request begins with any of `--persona=`, `--contract=`, or `--context-file=`, run **layered mode**:
 
-1. Parse the three flags from the request prefix. All three are required in this mode; if any is missing, emit `ERROR: layered mode requires --persona, --context, --contract` and stop.
-2. Invoke the composition CLI:
+1. Parse the flags from the request prefix. `--persona` and `--contract` are required; `--context-file` is optional. If either required flag is missing, emit `ERROR: layered mode requires --persona and --contract` and stop.
+2. Invoke the composition CLI (omit `--context-file` if the user did not supply one):
    ```bash
    bash skills/orbit-prompt/lib/compose.sh \
-     --persona=<value> --context=<value> --contract=<value> \
+     --persona=<value> --contract=<value> \
+     [--context-file=<path>] \
      --task=<remaining text after the flags>
    ```
 3. Return the composed output verbatim, followed by `READY TO SEND: Yes` or `No` with a one-line reason.
-4. If `compose.sh` exits non-zero, surface its `ERROR:` line as-is — do not retry, do not guess values.
+4. If `compose.sh` exits non-zero, surface its `ERROR:` line as-is — do not retry, do not guess values, do not invent a context file path.
 
 Otherwise, run **default mode** and deliver exactly this format:
 

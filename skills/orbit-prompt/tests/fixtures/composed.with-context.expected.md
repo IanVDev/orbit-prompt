@@ -7,11 +7,11 @@ Reject "we will add security later." Either the threat model fits in this change
 
 ---
 # CONTEXT
-Project: orbit-prompt — a Claude Code skill that analyzes prompts and surfaces inefficiencies. Distributed as a plugin under `.claude-plugin/` and as a skill under `skills/orbit-prompt/`.
+Project context (sample fixture used by snapshot tests).
 
-Non-negotiables: English-by-default language contract; deterministic composition; no network calls inside the skill; fail-closed validation; the skill provides direction, not execution. Governance scripts under `scripts/` enforce layout, language, and public communication contracts.
-
-Do not transform orbit-prompt into an execution engine. If a proposed change introduces runtime side effects beyond text composition, it belongs in a separate skill.
+This file stands in for whatever context the developer would supply at runtime
+via `--context-file`. It carries no domain detail — its only job is to make the
+golden snapshot reproducible.
 
 ---
 # TASK

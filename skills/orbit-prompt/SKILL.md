@@ -1,13 +1,13 @@
 ---
 name: orbit-prompt
-version: 1.3.0
+version: 1.4.0
 cli_compat: ">=0.1.2"
 description: >
   Universal prompt for deterministic AI behavior analysis and improvement.
 
   Analyzes tasks for inefficiencies and provides diagnostic feedback.
   Includes /orbit-prompt command to help refine and improve user prompts,
-  with optional layered composition (persona + context + contract).
+  with optional layered composition (persona + user-supplied context + contract).
 ---
 
 # Orbit Prompt — Universal Prompt
@@ -120,91 +120,115 @@ READY TO SEND:
 `orbit-prompt` can compose a prompt from on-disk layers in fixed order:
 
 ```
-Final Prompt = PERSONA + CONTEXT + TASK + CONSTRAINTS + OUTPUT CONTRACT
+Final Prompt = PERSONA + [CONTEXT] + TASK + CONSTRAINTS + OUTPUT CONTRACT
 ```
 
-Layers live as plain markdown files with YAML frontmatter:
+The persona and contract layers are project-agnostic built-ins shipped with the skill. The context layer is **always supplied by the caller** at invocation time — there are no committed project-specific contexts in this repository.
 
-| Layer    | Location                                   | Built-ins                                                       |
-|----------|--------------------------------------------|-----------------------------------------------------------------|
-| persona  | `skills/orbit-prompt/personas/`            | `security-architect`, `product-strategist`, `senior-reviewer`, `custom` |
-| context  | `skills/orbit-prompt/context-packs/`       | `orbit`, `aurya`, `porto`                                       |
-| contract | `skills/orbit-prompt/contracts/`           | `threat-model`, `pr-flow`, `roadmap`                            |
+| Layer    | Source                                                | Built-ins                                                                |
+|----------|-------------------------------------------------------|--------------------------------------------------------------------------|
+| persona  | `skills/orbit-prompt/personas/<name>.md`              | `security-architect`, `product-strategist`, `senior-reviewer`, `custom`  |
+| context  | path supplied via `--context-file=<path>` (optional)  | none — caller provides their own file                                    |
+| contract | `skills/orbit-prompt/contracts/<name>.md`             | `threat-model`, `pr-flow`, `roadmap`                                     |
 
-Adding a new layer = dropping a new `<name>.md` file into the right directory. No code change required.
+Adding a new persona or contract = dropping a new `<name>.md` file into the right directory. No code change required.
+
+When `--context-file` is omitted, the `# CONTEXT` section is **omitted entirely** from the composed output (no placeholder, no padding) — keeping the result deterministic and minimal.
 
 ### CLI Flags
 
-The composition CLI is `skills/orbit-prompt/lib/compose.sh`. The slash command (`/orbit-prompt`) accepts the same flags inline before the task text:
+The composition CLI is `skills/orbit-prompt/lib/compose.sh`. The slash command (`/orbit-prompt`) recognises the flags inline before the task text:
 
 ```text
-/orbit-prompt --persona=security-architect --context=orbit --contract=threat-model "your task"
+/orbit-prompt --persona=security-architect --contract=threat-model "your task"
+/orbit-prompt --persona=senior-reviewer --contract=pr-flow --context-file=docs/project-context.md "your task"
 ```
 
-| Flag                   | Required | Notes                                                                   |
-|------------------------|----------|-------------------------------------------------------------------------|
-| `--persona=<name>`     | yes (layered mode) | Must match a file in `personas/`. Allowlist: `[a-z0-9-]`.    |
-| `--context=<name>`     | yes (layered mode) | Must match a file in `context-packs/`.                       |
-| `--contract=<name>`    | yes (layered mode) | Must match a file in `contracts/`.                           |
-| `--task=<text>`        | one of   | Inline task text.                                                       |
-| `--task-file=<path>`   | one of   | Read task from file.                                                    |
+| Flag                       | Required           | Notes                                                                                  |
+|----------------------------|--------------------|----------------------------------------------------------------------------------------|
+| `--persona=<name>`         | yes (layered mode) | Must match a file in `personas/`. Allowlist: `[a-z0-9-]`.                              |
+| `--contract=<name>`        | yes (layered mode) | Must match a file in `contracts/`.                                                     |
+| `--context-file=<path>`    | optional           | Path to a markdown/text file inside the workspace. Validated fail-closed (see below).  |
+| `--task=<text>`            | one of             | Inline task text.                                                                      |
+| `--task-file=<path>`       | one of             | Read task from file.                                                                   |
 
-If any flag is omitted, the slash command falls back to its default IMPROVED-PROMPT behavior (legacy path, unchanged).
+If `--persona`/`--contract` are omitted, the slash command falls back to its default IMPROVED-PROMPT behavior (legacy path, unchanged).
 
 ### Composition Algorithm (deterministic)
 
 1. Parse flags. Unknown flag → `ERROR: unknown flag: <flag>` and exit 1.
-2. Validate every layer name against `^[a-z0-9][a-z0-9-]*$`. Reject otherwise.
-3. Resolve each name to `<dir>/<name>.md`. Confirm via `realpath` that the resolved path stays inside its layer directory (defense in depth against traversal).
-4. If the file does not exist, emit `ERROR: <layer> "<name>" not found. Available: [<sorted,csv>]` and exit 1.
-5. Strip YAML frontmatter from each layer file (everything between the first two `---` lines, plus a single trailing blank line).
-6. Emit the composed prompt with fixed headers (`# PERSONA`, `# CONTEXT`, `# TASK`, `# CONSTRAINTS`, `# OUTPUT CONTRACT`) and `---` separators, in that order.
+2. Validate `persona` and `contract` against `^[a-z0-9][a-z0-9-]*$`. Resolve to `<dir>/<name>.md`. `realpath` prefix check confirms the path stays inside its layer directory.
+3. If `--context-file` is provided, run all seven validations in order: path non-empty → exists → not a directory → is a regular file → resolved real path is inside the workspace (anchored at `git rev-parse --show-toplevel`, falling back to `pwd -P`) → not empty → ≤ 64 KiB.
+4. Any missing/invalid input emits `ERROR: <reason>` to stderr and exits 1. No silent fallback.
+5. Strip YAML frontmatter from persona/contract files. The context file is included verbatim (no frontmatter assumptions).
+6. Emit the composed prompt with fixed headers (`# PERSONA`, optional `# CONTEXT`, `# TASK`, `# CONSTRAINTS`, `# OUTPUT CONTRACT`) and `---` separators, in that order.
 
-The bytes between fixed inputs are stable: `bash tests/snapshot.sh` diffs the composed output against `tests/fixtures/composed.expected.md`.
+The bytes between fixed inputs are stable: `bash tests/snapshot.sh` diffs the composed output against the golden files in `tests/fixtures/`.
 
 ### Threat Model
 
-| # | Threat                                              | Mitigation                                                                                  |
-|---|-----------------------------------------------------|---------------------------------------------------------------------------------------------|
-| 1 | Path traversal via `--persona=../../etc/passwd`     | Allowlist regex blocks `/`, `.`, and traversal chars. `realpath` prefix check is layer 2.   |
-| 2 | Prompt injection via malicious context pack         | Layers are committed files reviewed in PRs; no remote fetch, no runtime authoring.          |
-| 3 | Built-in name shadowed by user-added file           | Built-in names are reserved; reviewers reject PRs that overwrite them. No silent merge.     |
-| 4 | Layer body contains command substitution / heredoc  | Composition uses `awk` text extraction and `printf` only — no `eval`, no shell expansion.   |
-| 5 | Argument injection via crafted `--persona=…&rm -rf` | Each flag is consumed by `case "$arg" in --persona=*) persona="${arg#*=}"`; never re-evaled.|
-| 6 | Resource exhaustion via huge task input             | `--task-file` is read once; no streaming side effects. Caller controls disk budget.         |
+| #  | Threat                                                | Mitigation                                                                                          |
+|----|-------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| 1  | Path traversal via `--persona=../../etc/passwd`        | Allowlist regex blocks `/`, `.`, and traversal chars. `realpath` prefix check is layer 2.           |
+| 2  | Path traversal via `--context-file=../../etc/passwd`   | Resolved real path must start with the workspace root. Otherwise reject.                            |
+| 3  | Symlink escape via `--context-file=evil-symlink`       | `realpath -P` resolves symlinks before the prefix check; symlink targets outside workspace fail.    |
+| 4  | Resource exhaustion via huge `--context-file`          | Hard cap at 64 KiB (`wc -c`). Anything larger is rejected before the file is read.                  |
+| 5  | Empty / directory / missing context file               | Each is its own explicit error: `is not a regular file`, `is empty`, `not found`. No silent skip.   |
+| 6  | Prompt injection via hostile context content           | Caller-controlled content; mitigated by reviewer awareness + persona/contract framing. Skill emits *direction*, not execution.|
+| 7  | Built-in persona/contract name shadowed by user file   | Built-in names reserved; reviewers reject PRs that overwrite them.                                  |
+| 8  | Layer body containing shell metacharacters             | Composition uses `awk` extraction + `printf`/`cat` only — no `eval`, no shell expansion of content. |
+| 9  | Argument injection via crafted flag values             | Each flag is consumed by `case "$arg" in --x=*) v="${arg#*=}"`; never re-evaled.                    |
+| 10 | Glob/URL/multi-file expansion in `--context-file`      | Single-value flag, no glob expansion. URLs fail the workspace-prefix check (no scheme support).     |
 
 ### Abuse Cases
 
 - **Persona name escape:** `--persona='../contracts/pr-flow'` → blocked at validation regex (`/` not in allowlist).
-- **Argument splitting:** `--persona='security-architect; cat /etc/passwd'` → entire value is a single shell-quoted string; the `;` is part of the value, fails regex, rejected.
-- **Context pack with hostile instructions:** added via PR; mitigated by review + the principle that orbit-prompt emits *direction*, not execution. The persona/contract layers reinforce that the consumer LLM should treat any embedded instruction critically.
-- **Built-in shadowing:** dropping a new `personas/security-architect.md` to override the canonical one — caught by `git diff` review; no silent reload.
-- **Empty task:** `--task=""` or no task at all → explicit `ERROR: task empty`. No composition with a hollow middle layer.
+- **Context-file traversal:** `--context-file=/etc/passwd` → resolves outside workspace, rejected.
+- **Symlink-to-secret:** `ln -s /etc/passwd ./ctx.md; --context-file=ctx.md` → `realpath -P` reveals true target; rejected.
+- **Memory blowup:** `dd if=/dev/zero of=big.md bs=1M count=10; --context-file=big.md` → 64 KiB cap rejects before read.
+- **URL as context:** `--context-file=https://evil.com/x.md` → not a real file path; existence check fails first; even if cached locally, workspace check applies.
+- **Argument splitting:** `--persona='security-architect; cat /etc/passwd'` → entire value is one quoted string; `;` is part of the value, fails regex.
+- **Empty task:** `--task=""` or task missing → explicit `ERROR: task empty`.
 
 ### Edge Cases
 
-- Empty input (`--task=""`) → fail-closed.
 - Layer file with no frontmatter → composition still works; body extraction is a no-op.
-- Layer file with CRLF line endings → preserved as-is in output. Snapshot test catches accidental normalization.
+- Layer file with CRLF line endings → preserved in output. Snapshot test catches accidental normalization.
 - Mixed-case flag value (`--persona=Custom`) → rejected; allowlist is lowercase only.
 - Whitespace-only persona value → rejected (regex requires at least one allowed char).
+- Context file without trailing newline → composer adds one before the next separator.
 
 ### Snapshot Test
 
-`bash skills/orbit-prompt/tests/snapshot.sh` runs two cases:
+`bash skills/orbit-prompt/tests/snapshot.sh` runs nine cases:
 
-1. **Happy-path golden diff** — composes `security-architect + orbit + threat-model + fixed task` and diffs against `tests/fixtures/composed.expected.md`. Any drift in layer wording, ordering, or separators fails the test.
-2. **Fail-closed assertion** — invokes with `--persona=hacker-doesnotexist`; asserts stderr starts with `ERROR: persona "hacker-doesnotexist" not found` and exit code is non-zero.
+| #  | Case                                                                              |
+|----|-----------------------------------------------------------------------------------|
+| T1 | Happy-path **with** `--context-file` → diff vs `composed.with-context.expected.md`|
+| T2 | Happy-path **without** `--context-file` → diff vs `composed.no-context.expected.md` (no `# CONTEXT` section) |
+| T3 | `--context-file` points to missing file → `ERROR: context-file not found:`        |
+| T4 | `--context-file` points to a directory → `ERROR: context-file is not a regular file:` |
+| T5 | `--context-file` points to an empty file → `ERROR: context-file is empty:`        |
+| T6 | `--context-file` exceeds 64 KiB → `ERROR: context-file exceeds 64 KiB:`           |
+| T7 | `--context-file` points outside the workspace → `ERROR: context-file resolves outside workspace:` |
+| T8 | `--context-file` is a symlink whose target is outside the workspace → same error  |
+| T9 | Invalid persona (legacy regression) → `ERROR: persona "<name>" not found.`        |
 
-Exit `0` only when both cases pass. Output ends with `OK: 2/2` on success, `FAIL: <p>/<t>` on failure.
+Exit `0` only when all nine pass. Output ends with `OK: 9/9` on success, `FAIL: <p>/<t>` on failure.
 
-When you intentionally change a layer's body, regenerate the golden file:
+When you intentionally change a persona, contract, or fixture, regenerate the golden files:
 
 ```bash
 bash skills/orbit-prompt/lib/compose.sh \
-  --persona=security-architect --context=orbit --contract=threat-model \
+  --persona=security-architect --contract=threat-model \
+  --context-file=skills/orbit-prompt/tests/fixtures/sample-context.md \
   --task-file=skills/orbit-prompt/tests/fixtures/task.txt \
-  > skills/orbit-prompt/tests/fixtures/composed.expected.md
+  > skills/orbit-prompt/tests/fixtures/composed.with-context.expected.md
+
+bash skills/orbit-prompt/lib/compose.sh \
+  --persona=security-architect --contract=threat-model \
+  --task-file=skills/orbit-prompt/tests/fixtures/task.txt \
+  > skills/orbit-prompt/tests/fixtures/composed.no-context.expected.md
 ```
 
 The regeneration is a deliberate, version-controlled act — never a CI side effect.
