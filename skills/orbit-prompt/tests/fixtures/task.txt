@@ -1,0 +1,1 @@
+Add layered persona/context/contract composition to orbit-prompt while preserving determinism and fail-closed validation.
