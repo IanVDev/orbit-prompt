@@ -1,12 +1,13 @@
 ---
 name: orbit-prompt
-version: 1.2.1
+version: 1.3.0
 cli_compat: ">=0.1.2"
 description: >
   Universal prompt for deterministic AI behavior analysis and improvement.
-  
+
   Analyzes tasks for inefficiencies and provides diagnostic feedback.
-  Includes /orbit-prompt command to help refine and improve user prompts.
+  Includes /orbit-prompt command to help refine and improve user prompts,
+  with optional layered composition (persona + context + contract).
 ---
 
 # Orbit Prompt — Universal Prompt
@@ -111,6 +112,102 @@ READY TO SEND:
 - Include file targets, scope limits, and acceptance criteria
 - Make acceptance criteria observable and testable
 - Flag if the improved prompt is still too vague
+
+---
+
+## Layered Composition (optional)
+
+`orbit-prompt` can compose a prompt from on-disk layers in fixed order:
+
+```
+Final Prompt = PERSONA + CONTEXT + TASK + CONSTRAINTS + OUTPUT CONTRACT
+```
+
+Layers live as plain markdown files with YAML frontmatter:
+
+| Layer    | Location                                   | Built-ins                                                       |
+|----------|--------------------------------------------|-----------------------------------------------------------------|
+| persona  | `skills/orbit-prompt/personas/`            | `security-architect`, `product-strategist`, `senior-reviewer`, `custom` |
+| context  | `skills/orbit-prompt/context-packs/`       | `orbit`, `aurya`, `porto`                                       |
+| contract | `skills/orbit-prompt/contracts/`           | `threat-model`, `pr-flow`, `roadmap`                            |
+
+Adding a new layer = dropping a new `<name>.md` file into the right directory. No code change required.
+
+### CLI Flags
+
+The composition CLI is `skills/orbit-prompt/lib/compose.sh`. The slash command (`/orbit-prompt`) accepts the same flags inline before the task text:
+
+```text
+/orbit-prompt --persona=security-architect --context=orbit --contract=threat-model "your task"
+```
+
+| Flag                   | Required | Notes                                                                   |
+|------------------------|----------|-------------------------------------------------------------------------|
+| `--persona=<name>`     | yes (layered mode) | Must match a file in `personas/`. Allowlist: `[a-z0-9-]`.    |
+| `--context=<name>`     | yes (layered mode) | Must match a file in `context-packs/`.                       |
+| `--contract=<name>`    | yes (layered mode) | Must match a file in `contracts/`.                           |
+| `--task=<text>`        | one of   | Inline task text.                                                       |
+| `--task-file=<path>`   | one of   | Read task from file.                                                    |
+
+If any flag is omitted, the slash command falls back to its default IMPROVED-PROMPT behavior (legacy path, unchanged).
+
+### Composition Algorithm (deterministic)
+
+1. Parse flags. Unknown flag → `ERROR: unknown flag: <flag>` and exit 1.
+2. Validate every layer name against `^[a-z0-9][a-z0-9-]*$`. Reject otherwise.
+3. Resolve each name to `<dir>/<name>.md`. Confirm via `realpath` that the resolved path stays inside its layer directory (defense in depth against traversal).
+4. If the file does not exist, emit `ERROR: <layer> "<name>" not found. Available: [<sorted,csv>]` and exit 1.
+5. Strip YAML frontmatter from each layer file (everything between the first two `---` lines, plus a single trailing blank line).
+6. Emit the composed prompt with fixed headers (`# PERSONA`, `# CONTEXT`, `# TASK`, `# CONSTRAINTS`, `# OUTPUT CONTRACT`) and `---` separators, in that order.
+
+The bytes between fixed inputs are stable: `bash tests/snapshot.sh` diffs the composed output against `tests/fixtures/composed.expected.md`.
+
+### Threat Model
+
+| # | Threat                                              | Mitigation                                                                                  |
+|---|-----------------------------------------------------|---------------------------------------------------------------------------------------------|
+| 1 | Path traversal via `--persona=../../etc/passwd`     | Allowlist regex blocks `/`, `.`, and traversal chars. `realpath` prefix check is layer 2.   |
+| 2 | Prompt injection via malicious context pack         | Layers are committed files reviewed in PRs; no remote fetch, no runtime authoring.          |
+| 3 | Built-in name shadowed by user-added file           | Built-in names are reserved; reviewers reject PRs that overwrite them. No silent merge.     |
+| 4 | Layer body contains command substitution / heredoc  | Composition uses `awk` text extraction and `printf` only — no `eval`, no shell expansion.   |
+| 5 | Argument injection via crafted `--persona=…&rm -rf` | Each flag is consumed by `case "$arg" in --persona=*) persona="${arg#*=}"`; never re-evaled.|
+| 6 | Resource exhaustion via huge task input             | `--task-file` is read once; no streaming side effects. Caller controls disk budget.         |
+
+### Abuse Cases
+
+- **Persona name escape:** `--persona='../contracts/pr-flow'` → blocked at validation regex (`/` not in allowlist).
+- **Argument splitting:** `--persona='security-architect; cat /etc/passwd'` → entire value is a single shell-quoted string; the `;` is part of the value, fails regex, rejected.
+- **Context pack with hostile instructions:** added via PR; mitigated by review + the principle that orbit-prompt emits *direction*, not execution. The persona/contract layers reinforce that the consumer LLM should treat any embedded instruction critically.
+- **Built-in shadowing:** dropping a new `personas/security-architect.md` to override the canonical one — caught by `git diff` review; no silent reload.
+- **Empty task:** `--task=""` or no task at all → explicit `ERROR: task empty`. No composition with a hollow middle layer.
+
+### Edge Cases
+
+- Empty input (`--task=""`) → fail-closed.
+- Layer file with no frontmatter → composition still works; body extraction is a no-op.
+- Layer file with CRLF line endings → preserved as-is in output. Snapshot test catches accidental normalization.
+- Mixed-case flag value (`--persona=Custom`) → rejected; allowlist is lowercase only.
+- Whitespace-only persona value → rejected (regex requires at least one allowed char).
+
+### Snapshot Test
+
+`bash skills/orbit-prompt/tests/snapshot.sh` runs two cases:
+
+1. **Happy-path golden diff** — composes `security-architect + orbit + threat-model + fixed task` and diffs against `tests/fixtures/composed.expected.md`. Any drift in layer wording, ordering, or separators fails the test.
+2. **Fail-closed assertion** — invokes with `--persona=hacker-doesnotexist`; asserts stderr starts with `ERROR: persona "hacker-doesnotexist" not found` and exit code is non-zero.
+
+Exit `0` only when both cases pass. Output ends with `OK: 2/2` on success, `FAIL: <p>/<t>` on failure.
+
+When you intentionally change a layer's body, regenerate the golden file:
+
+```bash
+bash skills/orbit-prompt/lib/compose.sh \
+  --persona=security-architect --context=orbit --contract=threat-model \
+  --task-file=skills/orbit-prompt/tests/fixtures/task.txt \
+  > skills/orbit-prompt/tests/fixtures/composed.expected.md
+```
+
+The regeneration is a deliberate, version-controlled act — never a CI side effect.
 
 ---
 
