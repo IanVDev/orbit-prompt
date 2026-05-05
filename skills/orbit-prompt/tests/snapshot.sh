@@ -35,11 +35,12 @@ assert_fail() { echo "FAIL $1 — $2"; fail=$((fail+1)); }
 # ---- Test 1: happy-path WITH context ------------------------------------
 exp="$FIXTURES/composed.with-context.expected.md"
 out="$TMPDIR_RUN/with.out"
+err="$TMPDIR_RUN/with.err"
 if bash "$COMPOSE" \
      --persona=security-architect \
      --contract=threat-model \
      --context-file="$FIXTURES/sample-context.md" \
-     --task-file="$FIXTURES/task.txt" > "$out" 2>/dev/null; then
+     --task-file="$FIXTURES/task.txt" > "$out" 2>"$err"; then
   if diff -u "$exp" "$out" >/dev/null; then
     assert_pass "T1 happy-path with context"
   else
@@ -47,16 +48,17 @@ if bash "$COMPOSE" \
     diff -u "$exp" "$out" || true
   fi
 else
-  assert_fail "T1 happy-path with context" "compose.sh exited non-zero"
+  assert_fail "T1 happy-path with context" "compose.sh exited non-zero — stderr: $(cat "$err")"
 fi
 
 # ---- Test 2: happy-path WITHOUT context ---------------------------------
 exp="$FIXTURES/composed.no-context.expected.md"
 out="$TMPDIR_RUN/no-ctx.out"
+err="$TMPDIR_RUN/no-ctx.err"
 if bash "$COMPOSE" \
      --persona=security-architect \
      --contract=threat-model \
-     --task-file="$FIXTURES/task.txt" > "$out" 2>/dev/null; then
+     --task-file="$FIXTURES/task.txt" > "$out" 2>"$err"; then
   if diff -u "$exp" "$out" >/dev/null; then
     assert_pass "T2 happy-path no context"
   else
@@ -64,7 +66,7 @@ if bash "$COMPOSE" \
     diff -u "$exp" "$out" || true
   fi
 else
-  assert_fail "T2 happy-path no context" "compose.sh exited non-zero"
+  assert_fail "T2 happy-path no context" "compose.sh exited non-zero — stderr: $(cat "$err")"
 fi
 
 # Helper: run compose expecting failure; assert error prefix on stderr.
@@ -124,6 +126,17 @@ expect_error "T8 symlink outside workspace" \
 expect_error "T9 invalid persona" \
   'persona "hacker-doesnotexist" not found' \
   --persona=hacker-doesnotexist --contract=threat-model --task=x
+
+# ---- Test 10: token allowlist rejects uppercase -------------------------
+expect_error "T10 uppercase persona token" \
+  'persona "Security-Architect" invalid' \
+  --persona=Security-Architect --contract=threat-model --task=x
+
+# ---- Test 11: --task and --task-file are mutually exclusive -------------
+expect_error "T11 both task flags" \
+  'use either --task or --task-file, not both' \
+  --persona=security-architect --contract=threat-model \
+  --task=inline --task-file="$FIXTURES/task.txt"
 
 # ---- Summary ------------------------------------------------------------
 total=$((pass+fail))

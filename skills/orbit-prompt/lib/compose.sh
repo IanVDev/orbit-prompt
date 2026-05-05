@@ -55,9 +55,13 @@ safe_resolve_token() {
   if [[ ! -f "$path" ]]; then
     die "$label \"$name\" not found. Available: $(list_available "$dir")"
   fi
+  # Reject symlinks outright — built-in layers must be plain regular files.
+  [[ ! -L "$path" ]] || die "$label \"$name\" must not be a symlink"
+  # Resolve the FILE itself (not just its dirname) to catch symlink targets.
   local real_dir real_path
   real_dir=$(cd "$dir" && pwd -P)
-  real_path=$(cd "$(dirname "$path")" && pwd -P)/$(basename "$path")
+  real_path=$(realpath_p "$path")
+  [[ -n "$real_path" ]] || die "$label \"$name\" failed to resolve"
   case "$real_path" in
     "$real_dir"/*) ;;
     *) die "$label \"$name\" resolved outside $dir" ;;
@@ -136,6 +140,9 @@ if [[ -n "$context_file" ]]; then
   CONTEXT_REAL=$(validate_context_file "$context_file")
 fi
 
+if [[ -n "$task" && -n "$task_file" ]]; then
+  die "use either --task or --task-file, not both"
+fi
 if [[ -n "$task_file" ]]; then
   [[ -f "$task_file" ]] || die "task-file not found: $task_file"
   task=$(cat "$task_file")

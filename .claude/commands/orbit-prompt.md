@@ -18,7 +18,7 @@ If the request begins with any of `--persona=`, `--contract=`, or `--context-fil
      [--context-file=<path>] \
      --task=<remaining text after the flags>
    ```
-3. Return the composed output verbatim, followed by `READY TO SEND: Yes` or `No` with a one-line reason.
+3. Print the composed output verbatim — exactly what `compose.sh` produced, byte-for-byte, with no edits and no inline annotations. After the composed block ends, on a separate line outside it, append a single `READY TO SEND: Yes` or `READY TO SEND: No — <reason>` line so the caller can copy/paste the composed prompt without including the readiness marker.
 4. If `compose.sh` exits non-zero, surface its `ERROR:` line as-is — do not retry, do not guess values, do not invent a context file path.
 
 Otherwise, run **default mode** and deliver exactly this format:

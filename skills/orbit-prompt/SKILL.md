@@ -200,21 +200,23 @@ The bytes between fixed inputs are stable: `bash tests/snapshot.sh` diffs the co
 
 ### Snapshot Test
 
-`bash skills/orbit-prompt/tests/snapshot.sh` runs nine cases:
+`bash skills/orbit-prompt/tests/snapshot.sh` runs eleven cases:
 
-| #  | Case                                                                              |
-|----|-----------------------------------------------------------------------------------|
-| T1 | Happy-path **with** `--context-file` → diff vs `composed.with-context.expected.md`|
-| T2 | Happy-path **without** `--context-file` → diff vs `composed.no-context.expected.md` (no `# CONTEXT` section) |
-| T3 | `--context-file` points to missing file → `ERROR: context-file not found:`        |
-| T4 | `--context-file` points to a directory → `ERROR: context-file is not a regular file:` |
-| T5 | `--context-file` points to an empty file → `ERROR: context-file is empty:`        |
-| T6 | `--context-file` exceeds 64 KiB → `ERROR: context-file exceeds 64 KiB:`           |
-| T7 | `--context-file` points outside the workspace → `ERROR: context-file resolves outside workspace:` |
-| T8 | `--context-file` is a symlink whose target is outside the workspace → same error  |
-| T9 | Invalid persona (legacy regression) → `ERROR: persona "<name>" not found.`        |
+| #   | Case                                                                              |
+|-----|-----------------------------------------------------------------------------------|
+| T1  | Happy-path **with** `--context-file` → diff vs `composed.with-context.expected.md`|
+| T2  | Happy-path **without** `--context-file` → diff vs `composed.no-context.expected.md` (no `# CONTEXT` section) |
+| T3  | `--context-file` points to missing file → `ERROR: context-file not found:`        |
+| T4  | `--context-file` points to a directory → `ERROR: context-file is not a regular file:` |
+| T5  | `--context-file` points to an empty file → `ERROR: context-file is empty:`        |
+| T6  | `--context-file` exceeds 64 KiB → `ERROR: context-file exceeds 64 KiB:`           |
+| T7  | `--context-file` points outside the workspace → `ERROR: context-file resolves outside workspace:` |
+| T8  | `--context-file` is a symlink whose target is outside the workspace → same error  |
+| T9  | Invalid persona (legacy regression) → `ERROR: persona "<name>" not found.`        |
+| T10 | Uppercase token rejected by allowlist → `ERROR: persona "<value>" invalid`        |
+| T11 | `--task` and `--task-file` together → `ERROR: use either --task or --task-file, not both` |
 
-Exit `0` only when all nine pass. Output ends with `OK: 9/9` on success, `FAIL: <p>/<t>` on failure.
+Exit `0` only when all eleven pass. Output ends with `OK: 11/11` on success, `FAIL: <p>/<t>` on failure.
 
 When you intentionally change a persona, contract, or fixture, regenerate the golden files:
 
