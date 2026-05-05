@@ -1,0 +1,51 @@
+# Sensitive-task triggers for orbit-prompt auto-routing.
+#
+# Format: one term per line. Lines starting with `#` and blank lines are
+# ignored. Multi-word entries are allowed (whitespace inside the term is
+# matched as `[[:space:]]+` at runtime).
+#
+# Matching rules (see lib/route.sh):
+#   - case-insensitive
+#   - whole-word boundaries (\b...\b in ERE under LC_ALL=C)
+#   - byte comparison (no Unicode normalisation)
+#
+# Adding/removing a trigger does not require a code change. Update this
+# file, regenerate snapshot fixtures if needed, and ship.
+
+# English
+audit
+security
+auth
+authentication
+login
+token
+secret
+upload
+file
+webhook
+payment
+permission
+rbac
+session
+cookie
+vulnerability
+disclosure
+hmac
+signature
+tenant
+admin
+bug bounty
+
+# Portuguese
+auditar
+segurança
+seguranca
+autenticação
+autenticacao
+segredo
+arquivo
+pagamento
+permissão
+permissao
+vulnerabilidade
+assinatura

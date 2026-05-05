@@ -10,14 +10,21 @@
 #   T6 --context-file exceeds 64 KiB                 → ERROR + exit 1
 #   T7 --context-file path-traversal outside workspace → ERROR + exit 1
 #   T8 --context-file is symlink to outside workspace  → ERROR + exit 1
-#   T9 invalid persona (legacy fail-closed)          → ERROR + exit 1
+#   T9  invalid persona (legacy fail-closed)         → ERROR + exit 1
+#   T10 uppercase persona token rejected             → ERROR + exit 1
+#   T11 --task and --task-file together              → ERROR + exit 1
+#   T12 router auto-routes sensitive PT task         → decision=auto trigger=auditar
+#   T13 router auto-routes multi-word EN trigger     → decision=auto trigger=bug bounty
+#   T14 router stays legacy on benign task           → decision=legacy
+#   T15 router whole-word boundary blocks substring  → decision=legacy on "the work of an author"
 #
-# Exit 0 only when all 9 pass. Final line: "OK: 9/9" or "FAIL: <p>/<t>".
+# Exit 0 only when all 15 pass. Final line: "OK: 15/15" or "FAIL: <p>/<t>".
 
 set -uo pipefail
 
 SKILL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 COMPOSE="$SKILL_ROOT/lib/compose.sh"
+ROUTE="$SKILL_ROOT/lib/route.sh"
 FIXTURES="$SKILL_ROOT/tests/fixtures"
 
 pass=0; fail=0
@@ -137,6 +144,39 @@ expect_error "T11 both task flags" \
   'use either --task or --task-file, not both' \
   --persona=security-architect --contract=threat-model \
   --task=inline --task-file="$FIXTURES/task.txt"
+
+# Helper: run route.sh with the given task and assert the stdout line.
+expect_route() {
+  local label="$1"; local task="$2"; local expected="$3"
+  local out
+  out=$(bash "$ROUTE" --task="$task" 2>"$TMPDIR_RUN/route.err" || true)
+  if [[ "$out" == "$expected" ]]; then
+    assert_pass "$label"
+  else
+    assert_fail "$label" "want=$expected  got=$out  stderr=$(cat "$TMPDIR_RUN/route.err")"
+  fi
+}
+
+# ---- Test 12: auto-route on sensitive PT task ---------------------------
+expect_route "T12 auto-route sensitive PT" \
+  "auditar fluxo de upload" \
+  "decision=auto persona=security-architect contract=threat-model trigger=auditar"
+
+# ---- Test 13: auto-route on multi-word EN trigger -----------------------
+expect_route "T13 auto-route multi-word EN" \
+  "report a bug bounty issue" \
+  "decision=auto persona=security-architect contract=threat-model trigger=bug bounty"
+
+# ---- Test 14: legacy on benign task -------------------------------------
+expect_route "T14 legacy benign" \
+  "melhorar texto do README" \
+  "decision=legacy"
+
+# ---- Test 15: whole-word boundary blocks substring match ----------------
+# `auth` is a trigger but must NOT match inside `author`.
+expect_route "T15 whole-word boundary guard" \
+  "this is the work of an author" \
+  "decision=legacy"
 
 # ---- Summary ------------------------------------------------------------
 total=$((pass+fail))

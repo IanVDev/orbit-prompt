@@ -8,6 +8,27 @@ Apply the orbit-prompt skill to the user's request.
 
 **Mode selection:**
 
+Detect whether the user passed any of `--persona=`, `--contract=`, or `--context-file=` at the start of the request (the **explicit prefix**). Then choose:
+
+**A. Explicit prefix present** → run **layered mode** (below). Auto-routing is suppressed; the user is in charge.
+
+**B. No explicit prefix** → run **auto-routing**:
+1. Take the entire request text as `<task>` (verbatim, including any quotes).
+2. Invoke:
+   ```bash
+   bash skills/orbit-prompt/lib/route.sh --task=<task>
+   ```
+3. Parse the single stdout line.
+   - `decision=auto persona=<P> contract=<C> trigger=<T>` → run layered mode below using `--persona=<P> --contract=<C>` (no `--context-file`); after the composed block, on a separate line, emit:
+     ```
+     [auto-routed: persona=<P>, contract=<C> — matched trigger: "<T>"]
+     ```
+     Then the final `READY TO SEND` line.
+   - `decision=legacy` → run **default mode** (the IMPROVED-PROMPT format) below. Do not emit any auto-routing notice.
+4. If `route.sh` exits non-zero, surface its `ERROR:` line as-is and stop.
+
+**Layered mode:**
+
 If the request begins with any of `--persona=`, `--contract=`, or `--context-file=`, run **layered mode**:
 
 1. Parse the flags from the request prefix. `--persona` and `--contract` are required; `--context-file` is optional. If either required flag is missing, emit `ERROR: layered mode requires --persona and --contract` and stop.

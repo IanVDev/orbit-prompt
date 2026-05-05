@@ -1,13 +1,14 @@
 ---
 name: orbit-prompt
-version: 1.4.0
+version: 1.5.0
 cli_compat: ">=0.1.2"
 description: >
   Universal prompt for deterministic AI behavior analysis and improvement.
 
   Analyzes tasks for inefficiencies and provides diagnostic feedback.
   Includes /orbit-prompt command to help refine and improve user prompts,
-  with optional layered composition (persona + user-supplied context + contract).
+  with optional layered composition (persona + user-supplied context + contract)
+  and deterministic auto-routing into a security posture for sensitive tasks.
 ---
 
 # Orbit Prompt — Universal Prompt
@@ -115,6 +116,50 @@ READY TO SEND:
 
 ---
 
+## Auto-Routing (default for `/orbit-prompt`)
+
+When the user invokes `/orbit-prompt "<task>"` **without** any explicit `--persona`/`--contract`/`--context-file` flag, the slash command first runs a deterministic router (`skills/orbit-prompt/lib/route.sh`) over the task text. If the task contains a sensitive trigger word (case-insensitive, whole-word), the slash command transparently applies the **security posture** defaults:
+
+```
+--persona=security-architect --contract=threat-model
+```
+
+The composed block is then emitted as in layered mode, followed by an audit line on a separate line outside the block:
+
+```
+[auto-routed: persona=security-architect, contract=threat-model — matched trigger: "<term>"]
+```
+
+If no trigger fires, the slash command runs the legacy IMPROVED-PROMPT path unchanged.
+
+**Precedence is all-or-nothing.** Passing **any** of `--persona`, `--contract`, or `--context-file` at the start of the request suppresses auto-routing entirely. There is no partial merge: either the user controls the layers explicitly, or the router controls them. To disable auto-routing for a single call, just pass an explicit `--persona=…` (anything you want, including `custom`).
+
+### Triggers
+
+Triggers live in `skills/orbit-prompt/lib/sensitive-triggers.txt`, one term per line (`#` comments and blank lines allowed). Multi-word entries like `bug bounty` are matched with flexible whitespace. Adding or removing a trigger is a data-only change — no code edit, no rebuild.
+
+Initial English terms: `audit, security, auth, authentication, login, token, secret, upload, file, webhook, payment, permission, rbac, session, cookie, vulnerability, disclosure, hmac, signature, tenant, admin, bug bounty`.
+Initial Portuguese terms: `auditar, segurança, seguranca, autenticação, autenticacao, segredo, arquivo, pagamento, permissão, permissao, vulnerabilidade, assinatura`.
+
+### Matching rules
+
+- Case-insensitive (ASCII lowering only — Portuguese accented uppercase letters such as `Ã`, `Ç` stay as-is; type accented letters in lowercase).
+- Whole-word boundaries via `[^[:alnum:]_]` padding (portable across BSD/GNU `grep -E`). `auth` does **not** match `author`, `authority`, or `authentication` (the longer trigger wins via leftmost-longest sort).
+- Byte comparison; no Unicode normalisation.
+- The first match wins. The matched term is echoed verbatim in the audit line so the decision is reproducible.
+
+### Threat model (auto-routing)
+
+| #  | Threat                                                                  | Mitigation                                                                                  |
+|----|-------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| 11 | **Over-trigger** — security posture activates on a benign prompt        | Whole-word matching + curated, short trigger list. False-positive guard test (T15) locked.  |
+| 12 | **Under-trigger** — sensitive prompt slips past the router              | Triggers are data-driven; users add missing terms in one line. Snapshot tests (T12, T13) pin coverage. |
+| 13 | **Silent activation** — user can't tell auto-routing happened           | Mandatory `[auto-routed: …]` audit line outside the composed block, before `READY TO SEND`. |
+| 14 | **Trigger-list tampering as supply-chain attack**                       | Triggers file is committed and code-reviewed; no remote fetch, no runtime authoring.        |
+| 15 | **Locale-dependent matching** producing different decisions per machine | `LC_ALL=C` is forced inside `route.sh`. Output is byte-stable across Linux/macOS.           |
+
+---
+
 ## Layered Composition (optional)
 
 `orbit-prompt` can compose a prompt from on-disk layers in fixed order:
@@ -200,7 +245,7 @@ The bytes between fixed inputs are stable: `bash tests/snapshot.sh` diffs the co
 
 ### Snapshot Test
 
-`bash skills/orbit-prompt/tests/snapshot.sh` runs eleven cases:
+`bash skills/orbit-prompt/tests/snapshot.sh` runs fifteen cases:
 
 | #   | Case                                                                              |
 |-----|-----------------------------------------------------------------------------------|
@@ -215,8 +260,12 @@ The bytes between fixed inputs are stable: `bash tests/snapshot.sh` diffs the co
 | T9  | Invalid persona (legacy regression) → `ERROR: persona "<name>" not found.`        |
 | T10 | Uppercase token rejected by allowlist → `ERROR: persona "<value>" invalid`        |
 | T11 | `--task` and `--task-file` together → `ERROR: use either --task or --task-file, not both` |
+| T12 | Auto-routing — sensitive PT (`"auditar fluxo de upload"`) → `decision=auto … trigger=auditar` |
+| T13 | Auto-routing — multi-word EN (`"report a bug bounty issue"`) → `trigger=bug bounty` |
+| T14 | Auto-routing — benign (`"melhorar texto do README"`) → `decision=legacy`           |
+| T15 | Auto-routing — false-positive guard (`"the work of an author"`) → `decision=legacy` (whole-word boundary stops `auth` from matching `author`) |
 
-Exit `0` only when all eleven pass. Output ends with `OK: 11/11` on success, `FAIL: <p>/<t>` on failure.
+Exit `0` only when all fifteen pass. Output ends with `OK: 15/15` on success, `FAIL: <p>/<t>` on failure.
 
 When you intentionally change a persona, contract, or fixture, regenerate the golden files:
 
