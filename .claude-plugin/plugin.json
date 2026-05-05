@@ -1,6 +1,6 @@
 {
   "name": "orbit-prompt",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "A Claude Code plugin that turns rough ideas into structured prompts. Provides /orbit-prompt for explicit prompt review and silent session diagnostics for 8 inefficiency patterns.",
   "author": {
     "name": "Ian VDev",
